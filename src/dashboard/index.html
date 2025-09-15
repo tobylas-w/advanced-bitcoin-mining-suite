@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Mining Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+</head>
+<body class="dark-theme">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fab fa-bitcoin"></i>
+                <h1>Bitcoin Mining Manager</h1>
+            </div>
+            <div class="header-controls">
+                <div class="connection-status" id="connectionStatus">
+                    <i class="fas fa-circle"></i>
+                    <span>Connecting...</span>
+                </div>
+                <button class="btn btn-primary" id="toggleMining">
+                    <i class="fas fa-play"></i>
+                    Start Mining
+                </button>
+                <button class="btn btn-secondary" id="settingsBtn">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Status Overview -->
+        <section class="status-overview">
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Hashrate</h3>
+                    <div class="status-value" id="hashrateValue">0 H/s</div>
+                    <div class="status-change" id="hashrateChange">+0%</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Daily Earnings</h3>
+                    <div class="status-value" id="dailyEarnings">0.00000000 BTC</div>
+                    <div class="status-change" id="dailyEarningsUSD">$0.00</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Shares</h3>
+                    <div class="status-value" id="sharesValue">0 / 0</div>
+                    <div class="status-change" id="sharesRate">0% accepted</div>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-icon">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Temperature</h3>
+                    <div class="status-value" id="temperatureValue">0°C</div>
+                    <div class="status-change" id="temperatureStatus">Normal</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mining Controls -->
+        <section class="mining-controls">
+            <div class="controls-panel">
+                <h2>Mining Controls</h2>
+                <div class="control-group">
+                    <label for="miningIntensity">Mining Intensity</label>
+                    <input type="range" id="miningIntensity" min="1" max="10" value="5" class="slider">
+                    <span id="intensityValue">5</span>
+                </div>
+                <div class="control-group">
+                    <label for="cpuMining">CPU Mining</label>
+                    <input type="checkbox" id="cpuMining" checked>
+                </div>
+                <div class="control-group">
+                    <label for="gpuMining">GPU Mining</label>
+                    <input type="checkbox" id="gpuMining" checked>
+                </div>
+                <div class="control-group">
+                    <button class="btn btn-success" id="applySettings">
+                        <i class="fas fa-save"></i>
+                        Apply Settings
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mining-status">
+                <h2>Mining Status</h2>
+                <div class="status-indicators">
+                    <div class="indicator" id="miningStatus">
+                        <i class="fas fa-pause-circle"></i>
+                        <span>Stopped</span>
+                    </div>
+                    <div class="indicator" id="uptimeStatus">
+                        <i class="fas fa-clock"></i>
+                        <span>00:00:00</span>
+                    </div>
+                    <div class="indicator" id="poolStatus">
+                        <i class="fas fa-server"></i>
+                        <span>Disconnected</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Charts -->
+        <section class="performance-charts">
+            <div class="chart-container">
+                <h2>Hashrate History</h2>
+                <canvas id="hashrateChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Temperature Monitor</h2>
+                <canvas id="temperatureChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Device Information -->
+        <section class="device-info">
+            <div class="device-panel">
+                <h2>CPU Information</h2>
+                <div class="device-details" id="cpuInfo">
+                    <div class="device-item">
+                        <span>Model:</span>
+                        <span id="cpuModel">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Cores:</span>
+                        <span id="cpuCores">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Usage:</span>
+                        <span id="cpuUsage">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Temperature:</span>
+                        <span id="cpuTemp">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="device-panel">
+                <h2>GPU Information</h2>
+                <div class="device-details" id="gpuInfo">
+                    <div class="device-item">
+                        <span>Model:</span>
+                        <span id="gpuModel">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Memory:</span>
+                        <span id="gpuMemory">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Usage:</span>
+                        <span id="gpuUsage">Loading...</span>
+                    </div>
+                    <div class="device-item">
+                        <span>Temperature:</span>
+                        <span id="gpuTemp">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Earnings Breakdown -->
+        <section class="earnings-breakdown">
+            <div class="earnings-panel">
+                <h2>Earnings Breakdown</h2>
+                <div class="earnings-grid">
+                    <div class="earnings-item">
+                        <div class="earnings-label">Hourly</div>
+                        <div class="earnings-value" id="hourlyEarnings">0.00000000 BTC</div>
+                    </div>
+                    <div class="earnings-item">
+                        <div class="earnings-label">Daily</div>
+                        <div class="earnings-value" id="dailyEarningsDetail">0.00000000 BTC</div>
+                    </div>
+                    <div class="earnings-item">
+                        <div class="earnings-label">Weekly</div>
+                        <div class="earnings-value" id="weeklyEarnings">0.00000000 BTC</div>
+                    </div>
+                    <div class="earnings-item">
+                        <div class="earnings-label">Monthly</div>
+                        <div class="earnings-value" id="monthlyEarnings">0.00000000 BTC</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Office Network Management -->
+        <section class="office-network">
+            <div class="network-panel">
+                <h2>Office Network Management</h2>
+                <div class="network-controls">
+                    <button class="btn btn-primary" id="startAllMining">
+                        <i class="fas fa-play"></i>
+                        Start All Clients
+                    </button>
+                    <button class="btn btn-warning" id="stopAllMining">
+                        <i class="fas fa-stop"></i>
+                        Stop All Clients
+                    </button>
+                    <button class="btn btn-info" id="refreshClients">
+                        <i class="fas fa-sync"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div class="clients-grid" id="clientsGrid">
+                    <!-- Client cards will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Cross-Platform Deployment -->
+        <section class="deployment-section">
+            <div class="deployment-panel">
+                <h2>Cross-Platform Deployment</h2>
+                <div class="deployment-options">
+                    <div class="deployment-card">
+                        <div class="deployment-icon">
+                            <i class="fab fa-windows"></i>
+                        </div>
+                        <h3>Windows 11</h3>
+                        <p>Automated installer with system integration</p>
+                        <button class="btn btn-outline" id="downloadWindows">
+                            <i class="fas fa-download"></i>
+                            Download Installer
+                        </button>
+                    </div>
+                    <div class="deployment-card">
+                        <div class="deployment-icon">
+                            <i class="fab fa-ubuntu"></i>
+                        </div>
+                        <h3>Ubuntu/Debian</h3>
+                        <p>Systemd service with optimization</p>
+                        <button class="btn btn-outline" id="downloadUbuntu">
+                            <i class="fas fa-download"></i>
+                            Download Installer
+                        </button>
+                    </div>
+                    <div class="deployment-card">
+                        <div class="deployment-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Web Installer</h3>
+                        <p>Browser-based installation</p>
+                        <button class="btn btn-outline" id="openWebInstaller">
+                            <i class="fas fa-external-link-alt"></i>
+                            Open Web Installer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Analytics -->
+        <section class="performance-analytics">
+            <div class="analytics-panel">
+                <h2>Performance Analytics</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Network Performance</h3>
+                        <div class="analytics-metric">
+                            <span class="metric-label">Latency</span>
+                            <span class="metric-value" id="networkLatency">0ms</span>
+                        </div>
+                        <div class="analytics-metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value" id="networkUptime">99.9%</span>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Efficiency Metrics</h3>
+                        <div class="analytics-metric">
+                            <span class="metric-label">Power Efficiency</span>
+                            <span class="metric-value" id="powerEfficiency">85%</span>
+                        </div>
+                        <div class="analytics-metric">
+                            <span class="metric-label">Hash/Watt</span>
+                            <span class="metric-value" id="hashPerWatt">0.0</span>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Profitability</h3>
+                        <div class="analytics-metric">
+                            <span class="metric-label">ROI</span>
+                            <span class="metric-value" id="roi">0%</span>
+                        </div>
+                        <div class="analytics-metric">
+                            <span class="metric-label">Break-even</span>
+                            <span class="metric-value" id="breakEven">0 days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mining Log -->
+        <section class="mining-log">
+            <div class="log-panel">
+                <h2>Mining Log</h2>
+                <div class="log-controls">
+                    <button class="btn btn-sm" id="clearLog">Clear Log</button>
+                    <button class="btn btn-sm" id="exportLog">Export Log</button>
+                    <select id="logLevel">
+                        <option value="all">All</option>
+                        <option value="info">Info</option>
+                        <option value="warn">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <div class="log-content" id="logContent">
+                    <div class="log-entry info">
+                        <span class="log-time">[00:00:00]</span>
+                        <span class="log-level">[INFO]</span>
+                        <span class="log-message">Bitcoin Mining Manager initialized</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" id="closeSettings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="tab-btn active" data-tab="general">General</button>
+                    <button class="tab-btn" data-tab="mining">Mining</button>
+                    <button class="tab-btn" data-tab="notifications">Notifications</button>
+                    <button class="tab-btn" data-tab="security">Security</button>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="tab-content active" id="general">
+                        <h3>General Settings</h3>
+                        <div class="setting-group">
+                            <label for="dashboardTheme">Theme</label>
+                            <select id="dashboardTheme">
+                                <option value="dark">Dark</option>
+                                <option value="light">Light</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="currencyDisplay">Currency</label>
+                            <select id="currencyDisplay">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="BTC">BTC</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="mining">
+                        <h3>Mining Settings</h3>
+                        <div class="setting-group">
+                            <label for="walletAddress">Wallet Address</label>
+                            <input type="text" id="walletAddress" placeholder="Enter your Bitcoin wallet address">
+                        </div>
+                        <div class="setting-group">
+                            <label for="miningPool">Mining Pool</label>
+                            <select id="miningPool">
+                                <option value="default">Default Pool</option>
+                                <option value="f2pool">F2Pool</option>
+                                <option value="antpool">Antpool</option>
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label for="workerName">Worker Name</label>
+                            <input type="text" id="workerName" placeholder="Enter worker name">
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="notifications">
+                        <h3>Notification Settings</h3>
+                        <div class="setting-group">
+                            <label for="enableNotifications">Enable Notifications</label>
+                            <input type="checkbox" id="enableNotifications" checked>
+                        </div>
+                        <div class="setting-group">
+                            <label for="notificationSound">Sound Alerts</label>
+                            <input type="checkbox" id="notificationSound" checked>
+                        </div>
+                        <div class="setting-group">
+                            <label for="temperatureAlert">Temperature Alert (°C)</label>
+                            <input type="number" id="temperatureAlert" value="85" min="60" max="100">
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="security">
+                        <h3>Security Settings</h3>
+                        <div class="setting-group">
+                            <label for="requireAuth">Require Authentication</label>
+                            <input type="checkbox" id="requireAuth" checked>
+                        </div>
+                        <div class="setting-group">
+                            <label for="sessionTimeout">Session Timeout (minutes)</label>
+                            <input type="number" id="sessionTimeout" value="60" min="5" max="480">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelSettings">Cancel</button>
+                <button class="btn btn-primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Consent Modal -->
+    <div class="modal" id="consentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>User Consent Required</h2>
+            </div>
+            <div class="modal-body">
+                <div class="consent-content">
+                    <div class="consent-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Bitcoin Mining Consent</h3>
+                    <p>This application will use your computer's CPU and GPU resources to mine Bitcoin cryptocurrency. By proceeding, you acknowledge that:</p>
+                    <ul>
+                        <li>Mining will consume electricity and may increase your power bill</li>
+                        <li>Your computer may run warmer and use more system resources</li>
+                        <li>Mining performance depends on your hardware capabilities</li>
+                        <li>You can stop mining at any time through the dashboard</li>
+                        <li>All mining activity is transparent and visible in the interface</li>
+                    </ul>
+                    <div class="consent-checkbox">
+                        <input type="checkbox" id="agreeToTerms">
+                        <label for="agreeToTerms">I understand and agree to the terms above</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="declineConsent">Decline</button>
+                <button class="btn btn-primary" id="acceptConsent" disabled>Accept & Start Mining</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
+
+
+
+
