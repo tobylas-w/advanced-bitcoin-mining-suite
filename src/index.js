@@ -11,6 +11,8 @@ const cluster = require('cluster');
 require('dotenv').config();
 
 const BitcoinMiner = require('./core/BitcoinMiner');
+const RealBitcoinMiner = require('./mining/RealBitcoinMiner');
+const RealEarningsCalculator = require('./utils/RealEarningsCalculator');
 const bitcoinConfig = require('./config/bitcoin');
 const ProfitabilityCalculator = require('./utils/ProfitabilityCalculator');
 const SystemMonitor = require('./utils/SystemMonitor');
@@ -37,7 +39,12 @@ class MiningServer {
             pingInterval: 25000
         });
         
-        this.miner = new BitcoinMiner(bitcoinConfig);
+        // DISABLED: Simulation miner - only use real mining
+        // this.miner = new BitcoinMiner(bitcoinConfig);
+        this.realMiner = new RealBitcoinMiner({
+            wallet: { address: 'bc1qgef2v0taxcae8wfmf868ydg92qp36guv68ddh4' },
+            worker: { name: 'fedora-miner' }
+        });
         this.profitabilityCalc = new ProfitabilityCalculator();
         this.systemMonitor = new SystemMonitor();
         this.centralManager = new CentralMiningManager(this.server);
@@ -48,9 +55,10 @@ class MiningServer {
         this.walletSecurity = new WalletSecurity();
         this.walletConfig = new WalletConfig();
         
-        // Initialize profit optimization systems
-        this.profitOptimizer = new MaximumProfitOptimizer();
-        this.profitTracker = new ProfitTracker();
+        // DISABLED: Fake profit optimization - only show real earnings
+        // this.profitOptimizer = new MaximumProfitOptimizer();
+        // this.profitTracker = new ProfitTracker();
+        this.realEarningsCalculator = new RealEarningsCalculator();
         this.databaseManager = new DatabaseManager();
         
         // Performance monitoring
@@ -91,30 +99,30 @@ class MiningServer {
             console.log(`🔐 Wallet Security: ${event.type}`, event.data);
         });
 
-        // Profit optimization event handlers
-        this.profitOptimizer.on('optimizationComplete', (data) => {
-            console.log('💰 Profit optimization complete:', data);
-            this.io.emit('profitUpdate', data);
-        });
+        // DISABLED: Fake profit optimization event handlers
+        // this.profitOptimizer.on('optimizationComplete', (data) => {
+        //     console.log('💰 Profit optimization complete:', data);
+        //     this.io.emit('profitUpdate', data);
+        // });
 
-        this.profitOptimizer.on('realTimeProfitUpdate', (data) => {
-            this.io.emit('realTimeProfitUpdate', data);
-        });
+        // this.profitOptimizer.on('realTimeProfitUpdate', (data) => {
+        //     this.io.emit('realTimeProfitUpdate', data);
+        // });
 
-        this.profitOptimizer.on('aggressiveModeEnabled', () => {
-            console.log('🚀 AGGRESSIVE PROFIT MODE ENABLED!');
-            this.io.emit('aggressiveModeEnabled');
-        });
+        // this.profitOptimizer.on('aggressiveModeEnabled', () => {
+        //     console.log('🚀 AGGRESSIVE PROFIT MODE ENABLED!');
+        //     this.io.emit('aggressiveModeEnabled');
+        // });
 
-        // Profit tracker event handlers
-        this.profitTracker.on('profitUpdate', (data) => {
-            this.io.emit('profitTrackerUpdate', data);
-        });
+        // // Profit tracker event handlers
+        // this.profitTracker.on('profitUpdate', (data) => {
+        //     this.io.emit('profitTrackerUpdate', data);
+        // });
 
-        this.profitTracker.on('profitAdded', (data) => {
-            console.log('💰 Profit added:', data);
-            this.io.emit('profitAdded', data);
-        });
+        // this.profitTracker.on('profitAdded', (data) => {
+        //     console.log('💰 Profit added:', data);
+        //     this.io.emit('profitAdded', data);
+        // });
 
         // Add request IP extraction middleware
         this.app.use((req, res, next) => {
@@ -408,82 +416,168 @@ class MiningServer {
             }
         });
 
-        // Profit optimization endpoints
-        router.get('/profit/status', (req, res) => {
-            try {
-                const profitStatus = this.profitOptimizer.getCurrentProfitStatus();
-                res.json(profitStatus);
-            } catch (error) {
-                res.status(500).json({ error: error.message });
-            }
-        });
+        // DISABLED: Fake profit optimization endpoints
+        // router.get('/profit/status', (req, res) => {
+        //     try {
+        //         const profitStatus = this.profitOptimizer.getCurrentProfitStatus();
+        //         res.json(profitStatus);
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
 
-        router.post('/profit/enable-aggressive', (req, res) => {
+        // router.post('/profit/enable-aggressive', (req, res) => {
+        //     try {
+        //         this.profitOptimizer.enableAggressiveMode();
+        //         res.json({ 
+        //             success: true, 
+        //             message: 'Aggressive profit mode enabled!',
+        //             status: this.profitOptimizer.getCurrentProfitStatus()
+        //         });
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // router.post('/profit/optimize', (req, res) => {
+        //     try {
+        //         this.profitOptimizer.optimizeForMaximumProfit();
+        //         res.json({ 
+        //             success: true, 
+        //             message: 'Profit optimization completed!',
+        //             status: this.profitOptimizer.getCurrentProfitStatus()
+        //         });
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // router.get('/profit/report', (req, res) => {
+        //     try {
+        //         const report = this.profitOptimizer.getProfitReport();
+        //         res.json(report);
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // // Profit tracking endpoints
+        // router.get('/profit/tracker/status', (req, res) => {
+        //     try {
+        //         const status = this.profitTracker.getCurrentStatus();
+        //         res.json(status);
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // router.get('/profit/tracker/report', (req, res) => {
+        //     try {
+        //         const report = this.profitTracker.getProfitReport();
+        //         res.json(report);
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // router.post('/profit/tracker/add', (req, res) => {
+        //     try {
+        //         const { amount, description } = req.body;
+        //         if (!amount || isNaN(amount)) {
+        //             return res.status(400).json({ error: 'Invalid amount' });
+        //         }
+                
+        //         this.profitTracker.addProfitEntry(parseFloat(amount), description);
+        //         res.json({ 
+        //             success: true, 
+        //             message: 'Profit entry added successfully',
+        //             status: this.profitTracker.getCurrentStatus()
+        //         });
+        //     } catch (error) {
+        //         res.status(500).json({ error: error.message });
+        //     }
+        // });
+
+        // Real earnings calculation endpoint
+        router.get('/real-earnings', (req, res) => {
             try {
-                this.profitOptimizer.enableAggressiveMode();
-                res.json({ 
-                    success: true, 
-                    message: 'Aggressive profit mode enabled!',
-                    status: this.profitOptimizer.getCurrentProfitStatus()
+                const miningStatus = this.realMiner.getStatus();
+                const hashrate = miningStatus.stats.hashrate || 0;
+                const realEarnings = this.realEarningsCalculator.calculateRealEarnings(hashrate);
+                
+                res.json({
+                    success: true,
+                    mining: {
+                        isRunning: miningStatus.isRunning,
+                        hashrate: hashrate,
+                        pool: miningStatus.pool
+                    },
+                    earnings: realEarnings,
+                    lastUpdated: new Date().toISOString()
                 });
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }
         });
 
-        router.post('/profit/optimize', (req, res) => {
+        // Real Bitcoin mining endpoints
+        router.post('/start-real-mining', async (req, res) => {
             try {
-                this.profitOptimizer.optimizeForMaximumProfit();
+                if (!req.body.userConsent) {
+                    return res.status(400).json({ error: 'User consent required for real mining' });
+                }
+                
+                await this.realMiner.startMining(req.body);
                 res.json({ 
                     success: true, 
-                    message: 'Profit optimization completed!',
-                    status: this.profitOptimizer.getCurrentProfitStatus()
+                    message: 'Real Bitcoin mining started successfully!',
+                    status: this.realMiner.getStatus(),
+                    pool: this.realMiner.currentPool
                 });
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }
         });
 
-        router.get('/profit/report', (req, res) => {
+        router.post('/stop-real-mining', async (req, res) => {
             try {
-                const report = this.profitOptimizer.getProfitReport();
-                res.json(report);
+                await this.realMiner.stopMining();
+                res.json({ 
+                    success: true, 
+                    message: 'Real Bitcoin mining stopped successfully',
+                    status: this.realMiner.getStatus()
+                });
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }
         });
 
-        // Profit tracking endpoints
-        router.get('/profit/tracker/status', (req, res) => {
+        router.get('/real-mining-status', (req, res) => {
             try {
-                const status = this.profitTracker.getCurrentStatus();
+                const status = this.realMiner.getStatus();
                 res.json(status);
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }
         });
 
-        router.get('/profit/tracker/report', (req, res) => {
+        router.get('/mining-pools', (req, res) => {
             try {
-                const report = this.profitTracker.getProfitReport();
-                res.json(report);
+                const pools = this.realMiner.getPools();
+                res.json(pools);
             } catch (error) {
                 res.status(500).json({ error: error.message });
             }
         });
 
-        router.post('/profit/tracker/add', (req, res) => {
+        router.post('/switch-pool', async (req, res) => {
             try {
-                const { amount, description } = req.body;
-                if (!amount || isNaN(amount)) {
-                    return res.status(400).json({ error: 'Invalid amount' });
-                }
-                
-                this.profitTracker.addProfitEntry(parseFloat(amount), description);
+                const { poolName } = req.body;
+                await this.realMiner.switchPool(poolName);
                 res.json({ 
                     success: true, 
-                    message: 'Profit entry added successfully',
-                    status: this.profitTracker.getCurrentStatus()
+                    message: `Switched to pool: ${poolName}`,
+                    currentPool: this.realMiner.currentPool
                 });
             } catch (error) {
                 res.status(500).json({ error: error.message });
@@ -603,6 +697,47 @@ class MiningServer {
                 const status = this.profitOptimizer.getCurrentProfitStatus();
                 socket.emit('profitStatusUpdate', status);
             });
+
+            // Real mining socket events
+            socket.on('startRealMining', async (data) => {
+                try {
+                    if (!data.userConsent) {
+                        socket.emit('error', { message: 'User consent required for real mining' });
+                        return;
+                    }
+                    
+                    await this.realMiner.startMining(data);
+                    socket.emit('realMiningStarted', this.realMiner.getStatus());
+                } catch (error) {
+                    socket.emit('error', error);
+                }
+            });
+
+            socket.on('stopRealMining', async () => {
+                try {
+                    await this.realMiner.stopMining();
+                    socket.emit('realMiningStopped', this.realMiner.getStatus());
+                } catch (error) {
+                    socket.emit('error', error);
+                }
+            });
+
+            socket.on('getRealMiningStatus', () => {
+                const status = this.realMiner.getStatus();
+                socket.emit('realMiningStatusUpdate', status);
+            });
+
+            socket.on('switchMiningPool', async (data) => {
+                try {
+                    await this.realMiner.switchPool(data.poolName);
+                    socket.emit('poolSwitched', { 
+                        pool: this.realMiner.currentPool,
+                        status: this.realMiner.getStatus()
+                    });
+                } catch (error) {
+                    socket.emit('error', error);
+                }
+            });
             
             // Handle client disconnect
             socket.on('disconnect', () => {
@@ -612,29 +747,64 @@ class MiningServer {
     }
 
     setupMiningEvents() {
-        // Forward mining events to all connected clients
-        this.miner.on('miningStarted', (stats) => {
-            this.io.emit('miningStarted', stats);
-        });
+        // DISABLED: Simulation mining events - only use real mining
+        // this.miner.on('miningStarted', (stats) => {
+        //     this.io.emit('miningStarted', stats);
+        // });
         
-        this.miner.on('miningStopped', (stats) => {
-            this.io.emit('miningStopped', stats);
-        });
+        // this.miner.on('miningStopped', (stats) => {
+        //     this.io.emit('miningStopped', stats);
+        // });
         
-        this.miner.on('statsUpdated', (stats) => {
-            this.io.emit('miningStats', stats);
-        });
+        // this.miner.on('statsUpdated', (stats) => {
+        //     this.io.emit('miningStats', stats);
+        // });
         
-        this.miner.on('shareAccepted', (data) => {
-            this.io.emit('shareAccepted', data);
-        });
+        // this.miner.on('shareAccepted', (data) => {
+        //     this.io.emit('shareAccepted', data);
+        // });
         
-        this.miner.on('shareRejected', (data) => {
-            this.io.emit('shareRejected', data);
-        });
+        // this.miner.on('shareRejected', (data) => {
+        //     this.io.emit('shareRejected', data);
+        // });
         
-        this.miner.on('error', (error) => {
-            this.io.emit('error', error);
+        // this.miner.on('error', (error) => {
+        //     this.io.emit('error', error);
+        // });
+
+        // Real Bitcoin miner event handlers
+        this.realMiner.on('miningStarted', (stats) => {
+            console.log('🚀 Real Bitcoin mining started!');
+            this.io.emit('realMiningStarted', stats);
+        });
+
+        this.realMiner.on('miningStopped', (stats) => {
+            console.log('⏹️ Real Bitcoin mining stopped');
+            this.io.emit('realMiningStopped', stats);
+        });
+
+        this.realMiner.on('statsUpdated', (stats) => {
+            this.io.emit('realMiningStats', stats);
+        });
+
+        this.realMiner.on('shareFound', (data) => {
+            console.log(`✅ Real share found: ${data.accepted}/${data.total}`);
+            this.io.emit('realShareFound', data);
+        });
+
+        this.realMiner.on('hashrateUpdate', (hashrate) => {
+            console.log(`📊 Real hashrate: ${hashrate} H/s`);
+            this.io.emit('realHashrateUpdate', hashrate);
+        });
+
+        this.realMiner.on('poolConnected', (data) => {
+            console.log(`🔗 Connected to real pool: ${data.pool.name}`);
+            this.io.emit('realPoolConnected', data);
+        });
+
+        this.realMiner.on('error', (error) => {
+            console.error('❌ Real mining error:', error);
+            this.io.emit('realMiningError', error);
         });
         
         // Forward central manager events
