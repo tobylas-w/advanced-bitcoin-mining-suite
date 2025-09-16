@@ -19,6 +19,9 @@ const SecurityManager = require('./security/SecurityManager');
 const NetworkSecurity = require('./security/NetworkSecurity');
 const WalletSecurity = require('./security/WalletSecurity');
 const WalletConfig = require('./config/wallet');
+const MaximumProfitOptimizer = require('./profit/MaximumProfitOptimizer');
+const ProfitTracker = require('./profit/ProfitTracker');
+const DatabaseManager = require('./database/DatabaseManager');
 
 class MiningServer {
     constructor() {
@@ -44,6 +47,11 @@ class MiningServer {
         this.networkSecurity = new NetworkSecurity();
         this.walletSecurity = new WalletSecurity();
         this.walletConfig = new WalletConfig();
+        
+        // Initialize profit optimization systems
+        this.profitOptimizer = new MaximumProfitOptimizer();
+        this.profitTracker = new ProfitTracker();
+        this.databaseManager = new DatabaseManager();
         
         // Performance monitoring
         this.performanceStats = {
@@ -81,6 +89,31 @@ class MiningServer {
 
         this.walletSecurity.on('securityEvent', (event) => {
             console.log(`🔐 Wallet Security: ${event.type}`, event.data);
+        });
+
+        // Profit optimization event handlers
+        this.profitOptimizer.on('optimizationComplete', (data) => {
+            console.log('💰 Profit optimization complete:', data);
+            this.io.emit('profitUpdate', data);
+        });
+
+        this.profitOptimizer.on('realTimeProfitUpdate', (data) => {
+            this.io.emit('realTimeProfitUpdate', data);
+        });
+
+        this.profitOptimizer.on('aggressiveModeEnabled', () => {
+            console.log('🚀 AGGRESSIVE PROFIT MODE ENABLED!');
+            this.io.emit('aggressiveModeEnabled');
+        });
+
+        // Profit tracker event handlers
+        this.profitTracker.on('profitUpdate', (data) => {
+            this.io.emit('profitTrackerUpdate', data);
+        });
+
+        this.profitTracker.on('profitAdded', (data) => {
+            console.log('💰 Profit added:', data);
+            this.io.emit('profitAdded', data);
         });
 
         // Add request IP extraction middleware
@@ -374,6 +407,88 @@ class MiningServer {
                 res.status(500).json({ error: error.message });
             }
         });
+
+        // Profit optimization endpoints
+        router.get('/profit/status', (req, res) => {
+            try {
+                const profitStatus = this.profitOptimizer.getCurrentProfitStatus();
+                res.json(profitStatus);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.post('/profit/enable-aggressive', (req, res) => {
+            try {
+                this.profitOptimizer.enableAggressiveMode();
+                res.json({ 
+                    success: true, 
+                    message: 'Aggressive profit mode enabled!',
+                    status: this.profitOptimizer.getCurrentProfitStatus()
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.post('/profit/optimize', (req, res) => {
+            try {
+                this.profitOptimizer.optimizeForMaximumProfit();
+                res.json({ 
+                    success: true, 
+                    message: 'Profit optimization completed!',
+                    status: this.profitOptimizer.getCurrentProfitStatus()
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.get('/profit/report', (req, res) => {
+            try {
+                const report = this.profitOptimizer.getProfitReport();
+                res.json(report);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        // Profit tracking endpoints
+        router.get('/profit/tracker/status', (req, res) => {
+            try {
+                const status = this.profitTracker.getCurrentStatus();
+                res.json(status);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.get('/profit/tracker/report', (req, res) => {
+            try {
+                const report = this.profitTracker.getProfitReport();
+                res.json(report);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.post('/profit/tracker/add', (req, res) => {
+            try {
+                const { amount, description } = req.body;
+                if (!amount || isNaN(amount)) {
+                    return res.status(400).json({ error: 'Invalid amount' });
+                }
+                
+                this.profitTracker.addProfitEntry(parseFloat(amount), description);
+                res.json({ 
+                    success: true, 
+                    message: 'Profit entry added successfully',
+                    status: this.profitTracker.getCurrentStatus()
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
         
         // Start mining on all clients
         router.post('/start-all-mining', (req, res) => {
@@ -471,6 +586,22 @@ class MiningServer {
                 } catch (error) {
                     socket.emit('error', error);
                 }
+            });
+
+            // Profit optimization events
+            socket.on('enableAggressiveMode', () => {
+                console.log('🚀 Client requested aggressive profit mode');
+                this.profitOptimizer.enableAggressiveMode();
+            });
+
+            socket.on('optimizeNow', () => {
+                console.log('⚡ Client requested immediate optimization');
+                this.profitOptimizer.optimizeForMaximumProfit();
+            });
+
+            socket.on('getProfitStatus', () => {
+                const status = this.profitOptimizer.getCurrentProfitStatus();
+                socket.emit('profitStatusUpdate', status);
             });
             
             // Handle client disconnect
