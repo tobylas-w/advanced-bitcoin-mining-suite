@@ -7,6 +7,7 @@ const { spawn, exec } = require('child_process');
 const EventEmitter = require('events');
 const os = require('os');
 const path = require('path');
+const PlatformDetector = require('./src/utils/PlatformDetector');
 
 /**
  * Bitcoin Mining Server
@@ -24,10 +25,13 @@ class BitcoinMiningServer extends EventEmitter {
         this.port = process.env.PORT || 3000;
         this.host = '0.0.0.0';
         
+        // Initialize platform detector
+        this.platformDetector = new PlatformDetector();
+        
         // Mining configuration
         this.config = {
-            walletAddress: 'bc1qgef2v0taxcae8wfmf868ydg92qp36guv68ddh4',
-            workerName: 'fedora-superior',
+            walletAddress: 'bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat',
+            workerName: `${this.platformDetector.platform}-miner`,
             pool: {
                 name: 'Antpool',
                 url: 'stratum+tcp://btc.ss.poolin.com:443',
@@ -47,13 +51,7 @@ class BitcoinMiningServer extends EventEmitter {
             earnings: { daily: 0, monthly: 0, yearly: 0 },
             uptime: 0,
             startTime: null,
-            platform: {
-                os: os.platform(),
-                arch: os.arch(),
-                cpuCores: os.cpus().length,
-                totalMemory: Math.round(os.totalmem() / 1024 / 1024 / 1024),
-                hostname: os.hostname()
-            }
+            platform: this.platformDetector.getSystemInfo()
         };
         
         this.setupMiddleware();
@@ -156,17 +154,69 @@ class BitcoinMiningServer extends EventEmitter {
             console.log(`📡 Client connected: ${socket.id}`);
             
             // Send current state to new client
-            socket.emit('systemStatus', this.state);
+            socket.emit('systemStatus', {
+                system: this.state,
+                config: this.config
+            });
             socket.emit('clientList', Array.from(this.state.clients.values()));
+            
+            // Handle client registration with enhanced platform info
+            socket.on('registerClient', (clientInfo) => {
+                const enhancedClientInfo = {
+                    ...clientInfo,
+                    clientId: socket.id,
+                    connectedAt: Date.now(),
+                    lastSeen: Date.now(),
+                    platform: {
+                        os: clientInfo.platform?.os || 'unknown',
+                        arch: clientInfo.platform?.arch || 'unknown',
+                        release: clientInfo.platform?.release || '',
+                        hostname: clientInfo.platform?.hostname || 'unknown',
+                        cpuCores: clientInfo.platform?.cpuCores || 0,
+                        totalMemory: clientInfo.platform?.totalMemory || 0,
+                        nodeVersion: clientInfo.platform?.nodeVersion || 'unknown',
+                        uptime: clientInfo.platform?.uptime || 0
+                    },
+                    status: 'online'
+                };
+                
+                this.state.clients.set(socket.id, enhancedClientInfo);
+                this.broadcastSystemUpdate();
+                
+                console.log(`📱 Client registered: ${enhancedClientInfo.platform.hostname} (${enhancedClientInfo.platform.os} ${enhancedClientInfo.platform.arch})`);
+            });
+            
+            // Handle client updates
+            socket.on('clientUpdate', (update) => {
+                const client = this.state.clients.get(socket.id);
+                if (client) {
+                    Object.assign(client, update, { 
+                        lastSeen: Date.now(),
+                        status: 'online'
+                    });
+                    this.broadcastSystemUpdate();
+                }
+            });
             
             socket.on('disconnect', () => {
                 console.log(`📡 Client disconnected: ${socket.id}`);
+                const client = this.state.clients.get(socket.id);
+                if (client) {
+                    client.status = 'offline';
+                    client.lastSeen = Date.now();
+                }
+                this.broadcastSystemUpdate();
             });
         });
     }
 
     generateClientId() {
         return `${os.hostname()}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    broadcastSystemUpdate() {
+        this.io.emit('systemUpdate', this.state);
+        this.io.emit('clientList', Array.from(this.state.clients.values()));
     }
 
     startLocalMining() {
@@ -182,19 +232,14 @@ class BitcoinMiningServer extends EventEmitter {
         this.state.isRunning = true;
         this.state.startTime = Date.now();
         
-        // Start CPUMiner
-        const cpuThreads = Math.max(1, Math.floor(this.state.platform.cpuCores * 0.75));
+        // Start CPUMiner with platform-specific configuration
+        const minerConfig = this.platformDetector.getMinerCommand(
+            this.config.walletAddress,
+            this.config.pool.url,
+            this.platformDetector.getOptimalThreads()
+        );
         
-        this.cpuMiner = spawn('./minerd', [
-            '--algo=sha256d',
-            `--url=${this.config.pool.url}`,
-            `--user=${this.config.walletAddress}`,
-            `--pass=${this.config.workerName}`,
-            `--threads=${cpuThreads}`,
-            '--retries=10',
-            '--timeout=60',
-            '--scantime=5'
-        ]);
+        this.cpuMiner = spawn(minerConfig.command, minerConfig.args, minerConfig.options);
 
         this.cpuMiner.stdout.on('data', (data) => {
             this.parseMinerOutput(data.toString());
@@ -212,8 +257,8 @@ class BitcoinMiningServer extends EventEmitter {
             }
         });
 
-        console.log(`💻 Started with ${cpuThreads} CPU threads`);
-        this.io.emit('miningStarted', { hashrate: 0, threads: cpuThreads });
+        console.log(`💻 Started with ${this.platformDetector.getOptimalThreads()} CPU threads`);
+        this.io.emit('miningStarted', { hashrate: 0, threads: this.platformDetector.getOptimalThreads() });
     }
 
     stopLocalMining() {
@@ -334,7 +379,7 @@ class BitcoinMiningServer extends EventEmitter {
             console.log('═'.repeat(40));
             console.log(`📊 Dashboard: http://localhost:${this.port}`);
             console.log(`🌐 Network: http://${this.getNetworkIP()}:${this.port}`);
-            console.log(`💻 Platform: ${this.state.platform.os} ${this.state.platform.arch}`);
+            console.log(`💻 Platform: ${this.state.platform.os} ${this.state.platform.arch} (${this.state.platform.release})`);
             console.log(`🧠 CPU Cores: ${this.state.platform.cpuCores}`);
             console.log(`💾 Memory: ${this.state.platform.totalMemory}GB`);
             console.log(`💰 Wallet: ${this.config.walletAddress}`);

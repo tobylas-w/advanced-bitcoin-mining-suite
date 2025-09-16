@@ -23,9 +23,18 @@ class ClientMiner extends EventEmitter {
         this.stats = {
             clientId: this.clientId,
             hostname: os.hostname(),
-            platform: os.platform(),
-            cpuCores: os.cpus().length,
-            totalMemory: Math.round(os.totalmem() / 1024 / 1024 / 1024), // GB
+            platform: {
+                os: os.platform(),
+                arch: os.arch(),
+                release: os.release(),
+                hostname: os.hostname(),
+                cpuCores: os.cpus().length,
+                totalMemory: Math.round(os.totalmem() / 1024 / 1024 / 1024),
+                freeMemory: Math.round(os.freemem() / 1024 / 1024 / 1024),
+                uptime: os.uptime(),
+                nodeVersion: process.version,
+                cpuModel: os.cpus()[0]?.model || 'Unknown'
+            },
             cpuHashrate: 0,
             gpuHashrate: 0,
             totalHashrate: 0,
@@ -44,7 +53,7 @@ class ClientMiner extends EventEmitter {
         };
         
         this.startTime = null;
-        this.walletAddress = config.walletAddress || 'bc1qgef2v0taxcae8wfmf868ydg92qp36guv68ddh4';
+        this.walletAddress = config.walletAddress || 'bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat';
         this.workerName = config.workerName || `${os.hostname()}-client`;
         
         // Detect hardware

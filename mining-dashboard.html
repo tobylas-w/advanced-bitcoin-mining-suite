@@ -512,9 +512,14 @@
                         <strong>${client.hostname || 'Unknown'}</strong>
                     </div>
                     <div style="font-size: 0.9rem; color: #aaa;">
-                        <div>Hashrate: ${formatHashrate(client.hashrate || 0)}</div>
-                        <div>Shares: ${client.shares?.accepted || 0}/${client.shares?.total || 0}</div>
-                        <div>Last Seen: ${formatTime(client.lastSeen)}</div>
+                        <div>OS: ${client.platform?.os || 'Unknown'} ${client.platform?.release || ''}</div>
+                        <div>Arch: ${client.platform?.arch || 'Unknown'} | CPU: ${client.platform?.cpuCores || 0} cores</div>
+                        <div>RAM: ${client.platform?.totalMemory || 0}GB | Uptime: ${formatUptime(client.platform?.uptime || 0)}</div>
+                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <div>Hashrate: ${formatHashrate(client.hashrate || 0)}</div>
+                            <div>Shares: ${client.shares?.accepted || 0}/${client.shares?.total || 0}</div>
+                            <div>Last Seen: ${formatTime(client.lastSeen)}</div>
+                        </div>
                     </div>
                 `;
                 
