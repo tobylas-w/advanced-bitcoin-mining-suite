@@ -57,7 +57,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=$INSTALL_DIR
-ExecStart=/usr/bin/node $INSTALL_DIR/src/index.js
+ExecStart=/usr/bin/node $INSTALL_DIR/client-miner.js
 Restart=always
 RestartSec=10
 

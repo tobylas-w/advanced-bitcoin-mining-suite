@@ -56,7 +56,7 @@ sc description "BitcoinMiner" "Bitcoin Mining Service"
 REM Create startup script
 echo @echo off > "%INSTALL_DIR%\start-mining.bat"
 echo cd /d "%INSTALL_DIR%" >> "%INSTALL_DIR%\start-mining.bat"
-echo node src/index.js >> "%INSTALL_DIR%\start-mining.bat"
+echo node client-miner.js >> "%INSTALL_DIR%\start-mining.bat"
 
 REM Start service
 echo [INFO] Starting Bitcoin mining service...
