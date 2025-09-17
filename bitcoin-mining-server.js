@@ -82,9 +82,9 @@ class BitcoinMiningServer extends EventEmitter {
     }
 
     setupRoutes() {
-        // Main dashboard
+        // Main dashboard (redirect to main dashboard)
         this.app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'mining-dashboard.html'));
+            res.sendFile(path.join(__dirname, 'main-dashboard.html'));
         });
 
         // Enterprise dashboard
@@ -105,6 +105,16 @@ class BitcoinMiningServer extends EventEmitter {
         // Professional mining dashboard (CoinMarketCap style)
         this.app.get('/professional', (req, res) => {
             res.sendFile(path.join(__dirname, 'professional-mining-dashboard.html'));
+        });
+
+        // Main dashboard (clean, nice looking)
+        this.app.get('/main', (req, res) => {
+            res.sendFile(path.join(__dirname, 'main-dashboard.html'));
+        });
+
+        // Reference dashboard (everything, comprehensive)
+        this.app.get('/reference', (req, res) => {
+            res.sendFile(path.join(__dirname, 'reference-dashboard.html'));
         });
 
         // API endpoints
