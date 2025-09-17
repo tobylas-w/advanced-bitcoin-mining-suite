@@ -22,61 +22,176 @@
 
         /* Side Navigation */
         .sidebar {
-            width: 80px;
+            width: 280px;
             background: #1a1d29;
             border-right: 1px solid #2a2f36;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 0;
+            padding: 0;
             position: fixed;
             height: 100vh;
             z-index: 1000;
+            overflow-y: auto;
+            transition: width 0.3s ease;
         }
 
-        .nav-button {
-            width: 60px;
-            height: 40px;
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #2a2f36;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: #f7931a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-section {
+            padding: 16px 0;
+            border-bottom: 1px solid #2a2f36;
+        }
+
+        .nav-section:last-child {
+            border-bottom: none;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 20px 12px 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a1a7bb;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #2a2f36;
+            color: #ffffff;
+            border-left-color: #f7931a;
+        }
+
+        .nav-item.active {
+            background: #2a2f36;
+            color: #ffffff;
+            border-left-color: #f7931a;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .nav-text {
+            flex: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+
+        .nav-collapse {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
             background: #2a2f36;
             border: none;
             border-radius: 8px;
             color: #a1a7bb;
-            font-size: 11px;
-            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 8px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .nav-button:hover, .nav-button.active {
-            background: #f7931a;
+        .nav-collapse:hover {
+            background: #3a3f46;
             color: #ffffff;
-            transform: translateY(-2px);
         }
 
-        .nav-button.active {
-            box-shadow: 0 4px 20px rgba(247, 147, 26, 0.3);
+        /* Collapsed Sidebar */
+        .sidebar.collapsed {
+            width: 80px;
         }
 
-        .nav-divider {
-            width: 30px;
-            height: 1px;
-            background: #2a2f36;
-            margin: 8px auto;
-            border-radius: 1px;
+        .sidebar.collapsed .nav-text,
+        .sidebar.collapsed .logo-text,
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .sidebar.collapsed .logo {
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .nav-footer {
+            left: 20px;
+            right: 20px;
+        }
+
+        .sidebar.collapsed .nav-collapse {
+            justify-content: center;
         }
 
         /* Main Content */
         .main-content {
             flex: 1;
-            margin-left: 80px;
+            margin-left: 280px;
             padding: 0;
             overflow-x: hidden;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
         }
 
         /* Header */
@@ -522,17 +637,27 @@
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 60px;
+                width: 80px;
             }
             
-            .nav-button {
-                width: 50px;
-                height: 35px;
-                font-size: 10px;
+            .sidebar .nav-text,
+            .sidebar .logo-text,
+            .sidebar .nav-section-title {
+                opacity: 0;
+                pointer-events: none;
+            }
+            
+            .sidebar .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            
+            .sidebar .logo {
+                justify-content: center;
             }
             
             .main-content {
-                margin-left: 60px;
+                margin-left: 80px;
             }
             
             .container {
@@ -787,30 +912,97 @@
 <body>
         <!-- Side Navigation -->
         <nav class="sidebar">
-            <a href="#" class="nav-button active" title="Ultimate Dashboard">Home</a>
-            <a href="professional-mining-dashboard.html" class="nav-button" title="Professional Dashboard">Pro</a>
-            <a href="main-dashboard.html" class="nav-button" title="Main Dashboard">Main</a>
-            <a href="reference-dashboard.html" class="nav-button" title="Reference Dashboard">Ref</a>
-            <a href="advanced-stats-dashboard.html" class="nav-button" title="Advanced Stats">Stats</a>
+            <!-- Logo Section -->
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">₿</div>
+                    <span class="logo-text">Mining Control</span>
+                </div>
+            </div>
+            
+            <!-- Navigation Sections -->
+            <div class="nav-section">
+                <div class="nav-section-title">Dashboard</div>
+                <a href="#" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Overview</span>
+                </a>
+                <a href="professional-mining-dashboard.html" class="nav-item">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">Professional</span>
+                </a>
+                <a href="main-dashboard.html" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Analytics</span>
+                </a>
+                <a href="reference-dashboard.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Reference</span>
+                </a>
+            </div>
             
             <!-- Mining Controls -->
-            <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="startMining()" title="Start Mining">Start</a>
-            <a href="#" class="nav-button" onclick="stopMining()" title="Stop Mining">Stop</a>
-            <a href="#" class="nav-button" onclick="restartMining()" title="Restart Mining">Restart</a>
-            <a href="#" class="nav-button" onclick="optimizeMining()" title="Optimize Mining">Optimize</a>
+            <div class="nav-section">
+                <div class="nav-section-title">Mining Controls</div>
+                <a href="#" class="nav-item" onclick="startMining()">
+                    <span class="nav-icon">▶️</span>
+                    <span class="nav-text">Start Mining</span>
+                </a>
+                <a href="#" class="nav-item" onclick="stopMining()">
+                    <span class="nav-icon">⏸️</span>
+                    <span class="nav-text">Stop Mining</span>
+                </a>
+                <a href="#" class="nav-item" onclick="restartMining()">
+                    <span class="nav-icon">🔄</span>
+                    <span class="nav-text">Restart</span>
+                </a>
+                <a href="#" class="nav-item" onclick="optimizeMining()">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-text">Optimize</span>
+                </a>
+            </div>
             
             <!-- Client Management -->
-            <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="showClientInstall()" title="Install Client">Install</a>
-            <a href="#" class="nav-button" onclick="showClientList()" title="Client List">Clients</a>
-            <a href="#" class="nav-button" onclick="deployClient()" title="Deploy Client">Deploy</a>
+            <div class="nav-section">
+                <div class="nav-section-title">Clients</div>
+                <a href="#" class="nav-item" onclick="showClientInstall()">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">Install Client</span>
+                </a>
+                <a href="#" class="nav-item" onclick="showClientList()">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Client List</span>
+                </a>
+                <a href="#" class="nav-item" onclick="deployClient()">
+                    <span class="nav-icon">🚀</span>
+                    <span class="nav-text">Deploy Client</span>
+                </a>
+            </div>
             
             <!-- Resources -->
-            <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="showResources()" title="Resources">Resources</a>
-            <a href="#" class="nav-button" onclick="viewPoolin()" title="Poolin Dashboard">Poolin</a>
-            <a href="#" class="nav-button" onclick="viewWallet()" title="Wallet Explorer">Wallet</a>
+            <div class="nav-section">
+                <div class="nav-section-title">Resources</div>
+                <a href="#" class="nav-item" onclick="showResources()">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">Resources</span>
+                </a>
+                <a href="#" class="nav-item" onclick="viewPoolin()">
+                    <span class="nav-icon">🏊</span>
+                    <span class="nav-text">Poolin</span>
+                </a>
+                <a href="#" class="nav-item" onclick="viewWallet()">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">Wallet</span>
+                </a>
+            </div>
+            
+            <!-- Collapse Button -->
+            <div class="nav-footer">
+                <button class="nav-collapse" onclick="toggleSidebar()">
+                    <span class="nav-icon">◀</span>
+                    <span class="nav-text">Collapse</span>
+                </button>
+            </div>
         </nav>
 
     <!-- Main Content -->
@@ -1634,6 +1826,12 @@ chmod +x install-macos.sh<br>
             if (event.target == modal) {
                 modal.style.display = 'none';
             }
+        }
+
+        // Sidebar toggle function
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
         }
 
         // Initialize
