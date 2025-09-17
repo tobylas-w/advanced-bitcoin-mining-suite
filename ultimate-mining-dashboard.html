@@ -35,16 +35,18 @@
         }
 
         .nav-button {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 40px;
             background: #2a2f36;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             color: #a1a7bb;
-            font-size: 20px;
+            font-size: 11px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
+            text-align: center;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -524,9 +526,9 @@
             }
             
             .nav-button {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
+                width: 50px;
+                height: 35px;
+                font-size: 10px;
             }
             
             .main-content {
@@ -785,30 +787,30 @@
 <body>
         <!-- Side Navigation -->
         <nav class="sidebar">
-            <a href="#" class="nav-button active" title="Ultimate Dashboard">🏠</a>
-            <a href="professional-mining-dashboard.html" class="nav-button" title="Professional Dashboard">⚡</a>
-            <a href="main-dashboard.html" class="nav-button" title="Main Dashboard">📊</a>
-            <a href="reference-dashboard.html" class="nav-button" title="Reference Dashboard">📋</a>
-            <a href="advanced-stats-dashboard.html" class="nav-button" title="Advanced Stats">📈</a>
+            <a href="#" class="nav-button active" title="Ultimate Dashboard">Home</a>
+            <a href="professional-mining-dashboard.html" class="nav-button" title="Professional Dashboard">Pro</a>
+            <a href="main-dashboard.html" class="nav-button" title="Main Dashboard">Main</a>
+            <a href="reference-dashboard.html" class="nav-button" title="Reference Dashboard">Ref</a>
+            <a href="advanced-stats-dashboard.html" class="nav-button" title="Advanced Stats">Stats</a>
             
             <!-- Mining Controls -->
             <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="startMining()" title="Start Mining">▶️</a>
-            <a href="#" class="nav-button" onclick="stopMining()" title="Stop Mining">⏸️</a>
-            <a href="#" class="nav-button" onclick="restartMining()" title="Restart Mining">🔄</a>
-            <a href="#" class="nav-button" onclick="optimizeMining()" title="Optimize Mining">⚡</a>
+            <a href="#" class="nav-button" onclick="startMining()" title="Start Mining">Start</a>
+            <a href="#" class="nav-button" onclick="stopMining()" title="Stop Mining">Stop</a>
+            <a href="#" class="nav-button" onclick="restartMining()" title="Restart Mining">Restart</a>
+            <a href="#" class="nav-button" onclick="optimizeMining()" title="Optimize Mining">Optimize</a>
             
             <!-- Client Management -->
             <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="showClientInstall()" title="Install Client">📥</a>
-            <a href="#" class="nav-button" onclick="showClientList()" title="Client List">👥</a>
-            <a href="#" class="nav-button" onclick="deployClient()" title="Deploy Client">🚀</a>
+            <a href="#" class="nav-button" onclick="showClientInstall()" title="Install Client">Install</a>
+            <a href="#" class="nav-button" onclick="showClientList()" title="Client List">Clients</a>
+            <a href="#" class="nav-button" onclick="deployClient()" title="Deploy Client">Deploy</a>
             
             <!-- Resources -->
             <div class="nav-divider"></div>
-            <a href="#" class="nav-button" onclick="showResources()" title="Resources">📚</a>
-            <a href="#" class="nav-button" onclick="viewPoolin()" title="Poolin Dashboard">🏊</a>
-            <a href="#" class="nav-button" onclick="viewWallet()" title="Wallet Explorer">💰</a>
+            <a href="#" class="nav-button" onclick="showResources()" title="Resources">Resources</a>
+            <a href="#" class="nav-button" onclick="viewPoolin()" title="Poolin Dashboard">Poolin</a>
+            <a href="#" class="nav-button" onclick="viewWallet()" title="Wallet Explorer">Wallet</a>
         </nav>
 
     <!-- Main Content -->
@@ -819,7 +821,7 @@
                 <div class="header-left">
                     <div class="logo">
                         <div class="logo-icon">₿</div>
-                        <span class="logo-text">Ultimate Mining Dashboard</span>
+                        <span class="logo-text">Bitcoin Mining Control Center</span>
                     </div>
                     <div class="status-indicator">
                         <div class="status-dot"></div>
@@ -850,7 +852,7 @@
         <div class="container">
             <!-- Hero Section -->
             <section class="hero">
-                <h1 class="hero-title">Bitcoin Mining Command Center</h1>
+                <h1 class="hero-title">Bitcoin Mining Control Center</h1>
                 <p class="hero-subtitle">Real-time mining performance, client management, and earnings tracking</p>
                 
                 <div class="hero-stats">
@@ -1144,32 +1146,32 @@
                 
                 <div class="controls-grid">
                     <div class="control-card">
-                        <h3>🚀 Mining Operations</h3>
+                        <h3>Mining Operations</h3>
                         <div class="control-buttons">
-                            <button class="btn btn-success" onclick="startMining()">▶️ Start Mining</button>
-                            <button class="btn btn-warning" onclick="stopMining()">⏸️ Stop Mining</button>
-                            <button class="btn btn-primary" onclick="restartMining()">🔄 Restart</button>
-                            <button class="btn btn-info" onclick="optimizeMining()">⚡ Optimize</button>
+                            <button class="btn btn-success" onclick="startMining()">Start Mining</button>
+                            <button class="btn btn-warning" onclick="stopMining()">Stop Mining</button>
+                            <button class="btn btn-primary" onclick="restartMining()">Restart</button>
+                            <button class="btn btn-info" onclick="optimizeMining()">Optimize</button>
                         </div>
                     </div>
                     
                     <div class="control-card">
-                        <h3>⚙️ Performance Tuning</h3>
+                        <h3>Performance Tuning</h3>
                         <div class="control-buttons">
-                            <button class="btn btn-secondary" onclick="increaseThreads()">➕ More Threads</button>
-                            <button class="btn btn-secondary" onclick="decreaseThreads()">➖ Fewer Threads</button>
-                            <button class="btn btn-secondary" onclick="switchPool()">🏊 Switch Pool</button>
-                            <button class="btn btn-secondary" onclick="updateMiner()">🔄 Update Miner</button>
+                            <button class="btn btn-secondary" onclick="increaseThreads()">Increase Threads</button>
+                            <button class="btn btn-secondary" onclick="decreaseThreads()">Decrease Threads</button>
+                            <button class="btn btn-secondary" onclick="switchPool()">Switch Pool</button>
+                            <button class="btn btn-secondary" onclick="updateMiner()">Update Miner</button>
                         </div>
                     </div>
                     
                     <div class="control-card">
-                        <h3>👥 Client Management</h3>
+                        <h3>Client Management</h3>
                         <div class="control-buttons">
-                            <button class="btn btn-success" onclick="showClientInstall()">📥 Install Client</button>
-                            <button class="btn btn-info" onclick="showClientList()">👥 Client List</button>
-                            <button class="btn btn-primary" onclick="deployClient()">🚀 Deploy Client</button>
-                            <button class="btn btn-warning" onclick="manageClients()">⚙️ Manage Clients</button>
+                            <button class="btn btn-success" onclick="showClientInstall()">Install Client</button>
+                            <button class="btn btn-info" onclick="showClientList()">Client List</button>
+                            <button class="btn btn-primary" onclick="deployClient()">Deploy Client</button>
+                            <button class="btn btn-warning" onclick="manageClients()">Manage Clients</button>
                         </div>
                     </div>
                 </div>
@@ -1190,7 +1192,7 @@
                 
                 <div class="resources-grid">
                     <div class="resource-card">
-                        <h3>🏊 Mining Pools</h3>
+                        <h3>Mining Pools</h3>
                         <div class="resource-links">
                             <a href="https://www.poolin.com" target="_blank" class="resource-link">Poolin Dashboard</a>
                             <a href="https://www.antpool.com" target="_blank" class="resource-link">Antpool</a>
@@ -1200,7 +1202,7 @@
                     </div>
                     
                     <div class="resource-card">
-                        <h3>💰 Wallets & Exchanges</h3>
+                        <h3>Wallets & Exchanges</h3>
                         <div class="resource-links">
                             <a href="https://blockstream.info/address/bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat" target="_blank" class="resource-link">Your Wallet Explorer</a>
                             <a href="https://www.coinbase.com" target="_blank" class="resource-link">Coinbase</a>
@@ -1210,7 +1212,7 @@
                     </div>
                     
                     <div class="resource-card">
-                        <h3>📊 Market Data</h3>
+                        <h3>Market Data</h3>
                         <div class="resource-links">
                             <a href="https://coinmarketcap.com/currencies/bitcoin/" target="_blank" class="resource-link">Bitcoin Price</a>
                             <a href="https://www.coingecko.com/en/coins/bitcoin" target="_blank" class="resource-link">CoinGecko</a>
@@ -1220,7 +1222,7 @@
                     </div>
                     
                     <div class="resource-card">
-                        <h3>🛠️ Tools & Calculators</h3>
+                        <h3>Tools & Calculators</h3>
                         <div class="resource-links">
                             <a href="https://www.cryptocompare.com/mining/calculator/btc" target="_blank" class="resource-link">Mining Calculator</a>
                             <a href="https://www.nicehash.com/profitability-calculator" target="_blank" class="resource-link">Profitability Calculator</a>
@@ -1240,7 +1242,7 @@
     <div id="clientInstallModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📥 Client Installation</h2>
+                <h2>Client Installation</h2>
                 <span class="close" onclick="closeClientInstall()">&times;</span>
             </div>
             <div class="modal-body">
@@ -1251,11 +1253,11 @@
                 </div>
                 
                 <div id="windowsInstall" class="install-content active">
-                    <h3>🪟 Windows Installation</h3>
+                    <h3>Windows Installation</h3>
                     <div class="install-steps">
                         <div class="install-step">
                             <h4>1. Download Client</h4>
-                            <button class="btn btn-primary" onclick="downloadClient('windows')">📥 Download Windows Client</button>
+                            <button class="btn btn-primary" onclick="downloadClient('windows')">Download Windows Client</button>
                         </div>
                         <div class="install-step">
                             <h4>2. Run Installation</h4>
@@ -1273,7 +1275,7 @@
                 </div>
                 
                 <div id="linuxInstall" class="install-content">
-                    <h3>🐧 Linux Installation</h3>
+                    <h3>Linux Installation</h3>
                     <div class="install-steps">
                         <div class="install-step">
                             <h4>1. Download & Install</h4>
@@ -1294,11 +1296,11 @@ sudo systemctl start bitcoin-miner</code>
                 </div>
                 
                 <div id="macosInstall" class="install-content">
-                    <h3>🍎 macOS Installation</h3>
+                    <h3>macOS Installation</h3>
                     <div class="install-steps">
                         <div class="install-step">
                             <h4>1. Download Client</h4>
-                            <button class="btn btn-primary" onclick="downloadClient('macos')">📥 Download macOS Client</button>
+                            <button class="btn btn-primary" onclick="downloadClient('macos')">Download macOS Client</button>
                         </div>
                         <div class="install-step">
                             <h4>2. Install via Terminal</h4>
