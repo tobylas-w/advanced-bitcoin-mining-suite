@@ -81,6 +81,14 @@
             font-size: 0.9rem;
         }
 
+        .stat-detail {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         .controls {
             display: flex;
             gap: 1rem;
@@ -294,24 +302,56 @@
                 <h3>⚡ Total Hashrate</h3>
                 <div class="stat-value" id="totalHashrate">0 H/s</div>
                 <div class="stat-label">Across all clients</div>
+                <div class="stat-detail" id="hashrateDetails">CPU: 0 H/s | GPU: 0 H/s</div>
             </div>
             
             <div class="stat-card">
                 <h3>✅ Shares</h3>
                 <div class="stat-value" id="totalShares">0/0</div>
                 <div class="stat-label">Accepted/Total</div>
+                <div class="stat-detail" id="shareRate">Accept Rate: 0%</div>
             </div>
             
             <div class="stat-card">
                 <h3>💰 Daily Earnings</h3>
                 <div class="stat-value" id="dailyEarnings">$0.00</div>
                 <div class="stat-label">USD per day</div>
+                <div class="stat-detail" id="btcEarnings">0.00000000 BTC</div>
             </div>
             
             <div class="stat-card">
                 <h3>📊 Uptime</h3>
                 <div class="stat-value" id="uptime">0h 0m</div>
                 <div class="stat-label">System running time</div>
+                <div class="stat-detail" id="startTime">Started: --</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🌡️ System Health</h3>
+                <div class="stat-value" id="systemHealth">Healthy</div>
+                <div class="stat-label">Overall status</div>
+                <div class="stat-detail" id="healthDetails">CPU: 0% | RAM: 0% | Temp: 0°C</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>🔗 Pool Status</h3>
+                <div class="stat-value" id="poolStatus">Connected</div>
+                <div class="stat-label">Mining pool</div>
+                <div class="stat-detail" id="poolDetails">Latency: 0ms | Difficulty: 0</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>⚡ Power Consumption</h3>
+                <div class="stat-value" id="powerUsage">0W</div>
+                <div class="stat-label">Estimated usage</div>
+                <div class="stat-detail" id="powerEfficiency">0 H/s per Watt</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>📈 Profitability</h3>
+                <div class="stat-value" id="profitability">$0.00</div>
+                <div class="stat-label">Net profit/day</div>
+                <div class="stat-detail" id="profitMargin">ROI: 0%</div>
             </div>
         </div>
 
@@ -320,6 +360,33 @@
             <button class="btn btn-primary" onclick="startMining()">🚀 Start Mining</button>
             <button class="btn btn-danger" onclick="stopMining()">⏹️ Stop Mining</button>
             <button class="btn btn-primary" onclick="refreshStats()">🔄 Refresh</button>
+        </div>
+
+        <!-- Wallet Monitoring Section -->
+        <div class="earnings-section">
+            <h3 style="text-align: center; margin-bottom: 1rem; color: #00d4ff;">💼 Wallet Monitoring</h3>
+            <div class="earnings-grid">
+                <div class="earnings-item">
+                    <div class="earnings-value" id="walletAddress">bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat</div>
+                    <div class="earnings-label">Current Wallet</div>
+                </div>
+                <div class="earnings-item">
+                    <div class="earnings-value" id="walletBalance">0.00000000 BTC</div>
+                    <div class="earnings-label">Current Balance</div>
+                </div>
+                <div class="earnings-item">
+                    <div class="earnings-value" id="pendingPayout">0.00000000 BTC</div>
+                    <div class="earnings-label">Pending Payout</div>
+                </div>
+                <div class="earnings-item">
+                    <div class="earnings-value" id="payoutThreshold">0.00100000 BTC</div>
+                    <div class="earnings-label">Payout Threshold</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <button class="btn btn-primary" onclick="refreshWallet()">🔄 Refresh Wallet</button>
+                <button class="btn btn-primary" onclick="openWalletExplorer()">🔍 View on Explorer</button>
+            </div>
         </div>
 
         <!-- Earnings Section -->

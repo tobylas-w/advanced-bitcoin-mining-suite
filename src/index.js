@@ -13,6 +13,7 @@ require('dotenv').config();
 const BitcoinMiner = require('./core/BitcoinMiner');
 const RealBitcoinMiner = require('./mining/RealBitcoinMiner');
 const RealEarningsCalculator = require('./utils/RealEarningsCalculator');
+const AccurateEarningsCalculator = require('./utils/AccurateEarningsCalculator');
 const bitcoinConfig = require('./config/bitcoin');
 const ProfitabilityCalculator = require('./utils/ProfitabilityCalculator');
 const SystemMonitor = require('./utils/SystemMonitor');
@@ -59,6 +60,7 @@ class MiningServer {
         // this.profitOptimizer = new MaximumProfitOptimizer();
         // this.profitTracker = new ProfitTracker();
         this.realEarningsCalculator = new RealEarningsCalculator();
+        this.accurateEarningsCalculator = new AccurateEarningsCalculator();
         this.databaseManager = new DatabaseManager();
         
         // Performance monitoring
@@ -613,6 +615,25 @@ class MiningServer {
                 res.status(500).json({ error: error.message });
             }
         });
+
+        // Accurate earnings endpoints
+        router.get('/accurate-earnings', (req, res) => {
+            try {
+                const earnings = this.accurateEarningsCalculator.getEarningsReport();
+                res.json(earnings);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+
+        router.get('/accurate-status', (req, res) => {
+            try {
+                const status = this.accurateEarningsCalculator.getStatus();
+                res.json(status);
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
         
         return router;
     }
@@ -636,6 +657,11 @@ class MiningServer {
         // Office network dashboard
         this.app.get('/office', (req, res) => {
             res.sendFile(path.join(__dirname, '../dashboard/index.html'));
+        });
+
+        // Accurate earnings dashboard
+        this.app.get('/accurate', (req, res) => {
+            res.sendFile(path.join(__dirname, '../accurate-mining-dashboard.html'));
         });
     }
 

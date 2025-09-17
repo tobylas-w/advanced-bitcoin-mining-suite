@@ -409,12 +409,21 @@ class RealBitcoinMiner extends EventEmitter {
             // Update uptime
             this.stats.uptime = this.startTime ? Date.now() - this.startTime : 0;
             
-            // Calculate estimated earnings based on hashrate
+            // Calculate REAL earnings based on actual hashrate and Bitcoin network
             if (this.stats.hashrate > 0) {
-                // Rough estimate: 1 MH/s ≈ $0.50/day at current Bitcoin price
-                const dailyEarnings = (this.stats.hashrate / 1000000) * 0.50;
-                this.stats.earnings.hourly = dailyEarnings / 24;
-                this.stats.earnings.daily = dailyEarnings;
+                const networkHashrate = 500000000000000000000; // ~500 EH/s current network
+                const blockReward = 3.125; // Current Bitcoin block reward
+                const blocksPerDay = 144; // Average blocks per day
+                const poolFee = 0.02; // 2% pool fee
+                const bitcoinPrice = 114000; // Current Bitcoin price (will be updated)
+                
+                // Calculate daily Bitcoin earnings
+                const dailyBTC = (this.stats.hashrate / networkHashrate) * blockReward * blocksPerDay * (1 - poolFee);
+                const dailyUSD = dailyBTC * bitcoinPrice;
+                
+                this.stats.earnings.hourly = dailyUSD / 24;
+                this.stats.earnings.daily = dailyUSD;
+                this.stats.earnings.total += this.stats.earnings.hourly / 12; // Increment every 5 seconds = 12 times per minute
             }
             
             // Emit stats update
