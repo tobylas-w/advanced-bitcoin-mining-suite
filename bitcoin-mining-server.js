@@ -82,9 +82,9 @@ class BitcoinMiningServer extends EventEmitter {
     }
 
     setupRoutes() {
-        // Main dashboard (redirect to main dashboard)
+        // Main dashboard (redirect to professional dashboard)
         this.app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'main-dashboard.html'));
+            res.sendFile(path.join(__dirname, 'professional-mining-dashboard.html'));
         });
 
         // Enterprise dashboard

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Mining Analytics Dashboard</title>
+    <title>Bitcoin Mining Dashboard - Professional</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
     <style>
@@ -850,15 +850,15 @@
                 </div>
             </section>
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <a href="#" class="tab active">Chart</a>
-                <a href="#" class="tab">Performance</a>
-                <a href="#" class="tab">Pools</a>
-                <a href="#" class="tab">Earnings</a>
-                <a href="#" class="tab">Network</a>
-                <a href="#" class="tab">Analytics</a>
-            </div>
+        <!-- Tabs -->
+        <div class="tabs">
+            <a href="#" class="tab active">Overview</a>
+            <a href="#" class="tab">Clients</a>
+            <a href="#" class="tab">Settings</a>
+            <a href="#" class="tab">Analytics</a>
+            <a href="#" class="tab">Network</a>
+            <a href="#" class="tab">Earnings</a>
+        </div>
 
             <!-- Chart Section -->
             <section class="chart-section">
@@ -1079,6 +1079,126 @@
                     </div>
                     <div style="text-align: center; margin-top: 12px;">
                         <small style="color: #a1a7bb;">Next difficulty adjustment in 1,579 blocks</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div class="mining-stats" id="settingsSection" style="display: none;">
+                <!-- Mining Configuration -->
+                <div class="mining-card pool-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">⚙️</div>
+                            Mining Configuration
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Algorithm:</span>
+                        <span class="stat-value">SHA-256</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Pool URL:</span>
+                        <span class="stat-value" style="font-size: 12px;">stratum+tcp://btc.ss.poolin.com:443</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Threads:</span>
+                        <span class="stat-value">7 / 8</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Pool Fee:</span>
+                        <span class="stat-value">2.5%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Payout Threshold:</span>
+                        <span class="stat-value">0.001 BTC</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <button class="btn" onclick="restartMining()">🔄 Restart Mining</button>
+                        <button class="btn" onclick="optimizeMining()">⚡ Optimize Settings</button>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div class="mining-card earnings-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">💻</div>
+                            System Settings
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Configured</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">CPU Cores:</span>
+                        <span class="stat-value">8 cores</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Memory:</span>
+                        <span class="stat-value">14 GB</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Operating System:</span>
+                        <span class="stat-value" style="font-size: 12px;">Linux 6.16.7-200.fc42.x86_64</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Node.js Version:</span>
+                        <span class="stat-value">v22.18.0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Server Uptime:</span>
+                        <span class="stat-value">99.8%</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <button class="btn" onclick="updateSystem()">🔄 Update System</button>
+                        <button class="btn" onclick="rebootServer()">🔄 Reboot Server</button>
+                    </div>
+                </div>
+
+                <!-- Wallet Settings -->
+                <div class="mining-card performance-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">💰</div>
+                            Wallet Settings
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Connected</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Wallet Type:</span>
+                        <span class="stat-value">Electrum (Bech32)</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Wallet Address:</span>
+                        <span class="stat-value" style="font-size: 11px;">bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Payout Schedule:</span>
+                        <span class="stat-value">Automatic</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Minimum Payout:</span>
+                        <span class="stat-value">0.001 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Pool Balance:</span>
+                        <span class="stat-value" id="poolBalance">0.00001234 BTC</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <button class="btn" onclick="changeWallet()">🔄 Change Wallet</button>
+                        <button class="btn" onclick="viewPoolin()">🏊 View Poolin</button>
                     </div>
                 </div>
             </div>
@@ -1463,7 +1583,26 @@
                 e.preventDefault();
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-                // Here you would load different sections
+                
+                // Show/hide sections based on tab
+                const tabText = this.textContent.toLowerCase();
+                
+                // Hide all sections
+                document.querySelectorAll('.chart-section, .mining-stats, .client-list').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show relevant section
+                if (tabText === 'overview') {
+                    document.querySelector('.chart-section').style.display = 'block';
+                    document.querySelector('.mining-stats').style.display = 'grid';
+                } else if (tabText === 'clients') {
+                    document.querySelector('.client-list').style.display = 'block';
+                } else if (tabText === 'settings') {
+                    document.getElementById('settingsSection').style.display = 'grid';
+                } else if (tabText === 'analytics') {
+                    document.querySelector('.chart-section').style.display = 'block';
+                }
             });
         });
 
@@ -1565,6 +1704,44 @@
                 renderClients();
                 showAlert('warning', `Client ${client.name} disconnected.`);
             }
+        }
+
+        // Settings functions
+        function restartMining() {
+            showAlert('success', 'Mining restarted successfully!');
+            // Simulate restart
+            setTimeout(() => {
+                miningData.hashrate = 2.4;
+                miningData.uptime = 0;
+                updateMiningData();
+            }, 1000);
+        }
+
+        function optimizeMining() {
+            miningData.hashrate = Math.min(miningData.hashrate * 1.1, 3.0);
+            showAlert('success', `Mining optimized! Hashrate increased to ${miningData.hashrate.toFixed(1)} MH/s`);
+            updateMiningData();
+        }
+
+        function updateSystem() {
+            showAlert('success', 'System update initiated. Please wait...');
+        }
+
+        function rebootServer() {
+            if (confirm('Are you sure you want to reboot the server?')) {
+                showAlert('warning', 'Server reboot initiated...');
+            }
+        }
+
+        function changeWallet() {
+            const newWallet = prompt('Enter new wallet address:', 'bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat');
+            if (newWallet) {
+                showAlert('success', `Wallet address updated to: ${newWallet.substring(0, 20)}...`);
+            }
+        }
+
+        function viewPoolin() {
+            window.open('https://www.poolin.com/my/account/mining', '_blank');
         }
     </script>
 </body>
