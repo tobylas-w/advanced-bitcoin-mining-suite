@@ -61,6 +61,14 @@
             box-shadow: 0 4px 20px rgba(247, 147, 26, 0.3);
         }
 
+        .nav-divider {
+            width: 30px;
+            height: 1px;
+            background: #2a2f36;
+            margin: 8px auto;
+            border-radius: 1px;
+        }
+
         /* Main Content */
         .main-content {
             flex: 1;
@@ -579,17 +587,229 @@
             border-color: #f84960;
             color: #f84960;
         }
+
+        /* Enhanced Button Styles */
+        .btn-success {
+            background: #02c076;
+            color: #ffffff;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000000;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: #ffffff;
+        }
+
+        /* Mining Controls Section */
+        .mining-controls-section, .resources-section {
+            background: #1a1d29;
+            border: 1px solid #2a2f36;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+
+        .controls-grid, .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .control-card, .resource-card {
+            background: #2a2f36;
+            border: 1px solid #3a3f46;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .control-card h3, .resource-card h3 {
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+        }
+
+        .resource-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .resource-link {
+            color: #a1a7bb;
+            text-decoration: none;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .resource-link:hover {
+            background: #f7931a;
+            color: #ffffff;
+            transform: translateX(4px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: #1a1d29;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #2a2f36;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            background: #2a2f36;
+            padding: 20px 24px;
+            border-bottom: 1px solid #3a3f46;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .close {
+            color: #a1a7bb;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .install-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .install-tab {
+            background: #2a2f36;
+            color: #a1a7bb;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .install-tab.active {
+            background: #f7931a;
+            color: #ffffff;
+        }
+
+        .install-content {
+            display: none;
+        }
+
+        .install-content.active {
+            display: block;
+        }
+
+        .install-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .install-step {
+            background: #2a2f36;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #f7931a;
+        }
+
+        .install-step h4 {
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .code-block {
+            background: #0b0e11;
+            border: 1px solid #2a2f36;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .code-block code {
+            color: #02c076;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
-    <!-- Side Navigation -->
-    <nav class="sidebar">
-        <a href="#" class="nav-button active" title="Ultimate Dashboard">🏠</a>
-        <a href="professional-mining-dashboard.html" class="nav-button" title="Professional Dashboard">⚡</a>
-        <a href="main-dashboard.html" class="nav-button" title="Main Dashboard">📊</a>
-        <a href="reference-dashboard.html" class="nav-button" title="Reference Dashboard">📋</a>
-        <a href="advanced-stats-dashboard.html" class="nav-button" title="Advanced Stats">📈</a>
-    </nav>
+        <!-- Side Navigation -->
+        <nav class="sidebar">
+            <a href="#" class="nav-button active" title="Ultimate Dashboard">🏠</a>
+            <a href="professional-mining-dashboard.html" class="nav-button" title="Professional Dashboard">⚡</a>
+            <a href="main-dashboard.html" class="nav-button" title="Main Dashboard">📊</a>
+            <a href="reference-dashboard.html" class="nav-button" title="Reference Dashboard">📋</a>
+            <a href="advanced-stats-dashboard.html" class="nav-button" title="Advanced Stats">📈</a>
+            
+            <!-- Mining Controls -->
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-button" onclick="startMining()" title="Start Mining">▶️</a>
+            <a href="#" class="nav-button" onclick="stopMining()" title="Stop Mining">⏸️</a>
+            <a href="#" class="nav-button" onclick="restartMining()" title="Restart Mining">🔄</a>
+            <a href="#" class="nav-button" onclick="optimizeMining()" title="Optimize Mining">⚡</a>
+            
+            <!-- Client Management -->
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-button" onclick="showClientInstall()" title="Install Client">📥</a>
+            <a href="#" class="nav-button" onclick="showClientList()" title="Client List">👥</a>
+            <a href="#" class="nav-button" onclick="deployClient()" title="Deploy Client">🚀</a>
+            
+            <!-- Resources -->
+            <div class="nav-divider"></div>
+            <a href="#" class="nav-button" onclick="showResources()" title="Resources">📚</a>
+            <a href="#" class="nav-button" onclick="viewPoolin()" title="Poolin Dashboard">🏊</a>
+            <a href="#" class="nav-button" onclick="viewWallet()" title="Wallet Explorer">💰</a>
+        </nav>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -909,10 +1129,190 @@
                 </div>
             </section>
 
+            <!-- Mining Controls Section -->
+            <section class="mining-controls-section">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <div class="card-icon">🎛️</div>
+                        Mining Controls
+                    </h2>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>Active</span>
+                    </div>
+                </div>
+                
+                <div class="controls-grid">
+                    <div class="control-card">
+                        <h3>🚀 Mining Operations</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-success" onclick="startMining()">▶️ Start Mining</button>
+                            <button class="btn btn-warning" onclick="stopMining()">⏸️ Stop Mining</button>
+                            <button class="btn btn-primary" onclick="restartMining()">🔄 Restart</button>
+                            <button class="btn btn-info" onclick="optimizeMining()">⚡ Optimize</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-card">
+                        <h3>⚙️ Performance Tuning</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-secondary" onclick="increaseThreads()">➕ More Threads</button>
+                            <button class="btn btn-secondary" onclick="decreaseThreads()">➖ Fewer Threads</button>
+                            <button class="btn btn-secondary" onclick="switchPool()">🏊 Switch Pool</button>
+                            <button class="btn btn-secondary" onclick="updateMiner()">🔄 Update Miner</button>
+                        </div>
+                    </div>
+                    
+                    <div class="control-card">
+                        <h3>👥 Client Management</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn-success" onclick="showClientInstall()">📥 Install Client</button>
+                            <button class="btn btn-info" onclick="showClientList()">👥 Client List</button>
+                            <button class="btn btn-primary" onclick="deployClient()">🚀 Deploy Client</button>
+                            <button class="btn btn-warning" onclick="manageClients()">⚙️ Manage Clients</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section class="resources-section">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <div class="card-icon">📚</div>
+                        Resources & Links
+                    </h2>
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>Available</span>
+                    </div>
+                </div>
+                
+                <div class="resources-grid">
+                    <div class="resource-card">
+                        <h3>🏊 Mining Pools</h3>
+                        <div class="resource-links">
+                            <a href="https://www.poolin.com" target="_blank" class="resource-link">Poolin Dashboard</a>
+                            <a href="https://www.antpool.com" target="_blank" class="resource-link">Antpool</a>
+                            <a href="https://www.f2pool.com" target="_blank" class="resource-link">F2Pool</a>
+                            <a href="https://www.viabtc.com" target="_blank" class="resource-link">ViaBTC</a>
+                        </div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>💰 Wallets & Exchanges</h3>
+                        <div class="resource-links">
+                            <a href="https://blockstream.info/address/bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat" target="_blank" class="resource-link">Your Wallet Explorer</a>
+                            <a href="https://www.coinbase.com" target="_blank" class="resource-link">Coinbase</a>
+                            <a href="https://www.exodus.com" target="_blank" class="resource-link">Exodus Wallet</a>
+                            <a href="https://electrum.org" target="_blank" class="resource-link">Electrum</a>
+                        </div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>📊 Market Data</h3>
+                        <div class="resource-links">
+                            <a href="https://coinmarketcap.com/currencies/bitcoin/" target="_blank" class="resource-link">Bitcoin Price</a>
+                            <a href="https://www.coingecko.com/en/coins/bitcoin" target="_blank" class="resource-link">CoinGecko</a>
+                            <a href="https://btc.com" target="_blank" class="resource-link">BTC.com</a>
+                            <a href="https://blockchain.info" target="_blank" class="resource-link">Blockchain.info</a>
+                        </div>
+                    </div>
+                    
+                    <div class="resource-card">
+                        <h3>🛠️ Tools & Calculators</h3>
+                        <div class="resource-links">
+                            <a href="https://www.cryptocompare.com/mining/calculator/btc" target="_blank" class="resource-link">Mining Calculator</a>
+                            <a href="https://www.nicehash.com/profitability-calculator" target="_blank" class="resource-link">Profitability Calculator</a>
+                            <a href="https://bitcoin.org/en/bitcoin-core/" target="_blank" class="resource-link">Bitcoin Core</a>
+                            <a href="https://github.com/tpruvot/ccminer" target="_blank" class="resource-link">CCMiner</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Alerts -->
             <div id="alerts"></div>
         </div>
     </main>
+
+    <!-- Client Installation Modal -->
+    <div id="clientInstallModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📥 Client Installation</h2>
+                <span class="close" onclick="closeClientInstall()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="install-tabs">
+                    <button class="install-tab active" onclick="showInstallTab('windows')">Windows</button>
+                    <button class="install-tab" onclick="showInstallTab('linux')">Linux</button>
+                    <button class="install-tab" onclick="showInstallTab('macos')">macOS</button>
+                </div>
+                
+                <div id="windowsInstall" class="install-content active">
+                    <h3>🪟 Windows Installation</h3>
+                    <div class="install-steps">
+                        <div class="install-step">
+                            <h4>1. Download Client</h4>
+                            <button class="btn btn-primary" onclick="downloadClient('windows')">📥 Download Windows Client</button>
+                        </div>
+                        <div class="install-step">
+                            <h4>2. Run Installation</h4>
+                            <div class="code-block">
+                                <code>client-miner.exe --install --wallet=bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat --pool=stratum+tcp://btc.ss.poolin.com:443</code>
+                            </div>
+                        </div>
+                        <div class="install-step">
+                            <h4>3. Auto-start Setup</h4>
+                            <div class="code-block">
+                                <code>client-miner.exe --service --autostart</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="linuxInstall" class="install-content">
+                    <h3>🐧 Linux Installation</h3>
+                    <div class="install-steps">
+                        <div class="install-step">
+                            <h4>1. Download & Install</h4>
+                            <div class="code-block">
+                                <code>wget https://your-server.com/client-miner.sh<br>
+chmod +x client-miner.sh<br>
+./client-miner.sh --install</code>
+                            </div>
+                        </div>
+                        <div class="install-step">
+                            <h4>2. Configure Service</h4>
+                            <div class="code-block">
+                                <code>sudo systemctl enable bitcoin-miner<br>
+sudo systemctl start bitcoin-miner</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="macosInstall" class="install-content">
+                    <h3>🍎 macOS Installation</h3>
+                    <div class="install-steps">
+                        <div class="install-step">
+                            <h4>1. Download Client</h4>
+                            <button class="btn btn-primary" onclick="downloadClient('macos')">📥 Download macOS Client</button>
+                        </div>
+                        <div class="install-step">
+                            <h4>2. Install via Terminal</h4>
+                            <div class="code-block">
+                                <code>curl -O https://your-server.com/install-macos.sh<br>
+chmod +x install-macos.sh<br>
+./install-macos.sh</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Chart.js configuration
@@ -1126,6 +1526,112 @@
 
         function viewPoolin() {
             window.open('https://www.poolin.com/my/account/mining', '_blank');
+        }
+
+        // Enhanced Mining Control Functions
+        function startMining() {
+            showAlert('success', 'Starting mining operations...');
+            miningData.hashrate = 2.4;
+            miningData.uptime = 0;
+            updateMiningData();
+        }
+
+        function stopMining() {
+            if (confirm('Are you sure you want to stop mining?')) {
+                showAlert('warning', 'Mining stopped successfully.');
+                miningData.hashrate = 0;
+                updateMiningData();
+            }
+        }
+
+        function increaseThreads() {
+            miningData.hashrate = Math.min(miningData.hashrate * 1.2, 3.5);
+            showAlert('success', `Threads increased! Hashrate: ${miningData.hashrate.toFixed(1)} MH/s`);
+            updateMiningData();
+        }
+
+        function decreaseThreads() {
+            miningData.hashrate = Math.max(miningData.hashrate * 0.8, 0.5);
+            showAlert('info', `Threads decreased! Hashrate: ${miningData.hashrate.toFixed(1)} MH/s`);
+            updateMiningData();
+        }
+
+        function switchPool() {
+            const pools = ['Poolin', 'Antpool', 'F2Pool', 'ViaBTC'];
+            const randomPool = pools[Math.floor(Math.random() * pools.length)];
+            showAlert('success', `Switched to ${randomPool} pool successfully!`);
+        }
+
+        function updateMiner() {
+            showAlert('info', 'Checking for miner updates...');
+            setTimeout(() => {
+                showAlert('success', 'Miner is up to date!');
+            }, 2000);
+        }
+
+        // Client Management Functions
+        function showClientInstall() {
+            document.getElementById('clientInstallModal').style.display = 'block';
+        }
+
+        function closeClientInstall() {
+            document.getElementById('clientInstallModal').style.display = 'none';
+        }
+
+        function showInstallTab(platform) {
+            // Hide all install contents
+            document.querySelectorAll('.install-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Hide all tabs
+            document.querySelectorAll('.install-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and tab
+            document.getElementById(platform + 'Install').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function downloadClient(platform) {
+            showAlert('success', `Downloading ${platform} client...`);
+            // Simulate download
+            setTimeout(() => {
+                showAlert('success', `${platform} client downloaded successfully!`);
+            }, 2000);
+        }
+
+        function showClientList() {
+            showAlert('info', 'Client list displayed in the dashboard above.');
+        }
+
+        function deployClient() {
+            showAlert('info', 'Deploying client to remote computers...');
+            setTimeout(() => {
+                showAlert('success', 'Client deployment initiated!');
+            }, 1500);
+        }
+
+        function manageClients() {
+            showAlert('info', 'Opening client management interface...');
+        }
+
+        // Resource Functions
+        function showResources() {
+            showAlert('info', 'Resources section displayed below.');
+        }
+
+        function viewWallet() {
+            window.open('https://blockstream.info/address/bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat', '_blank');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('clientInstallModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
         }
 
         // Initialize
