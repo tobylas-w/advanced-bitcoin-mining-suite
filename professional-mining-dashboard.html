@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Mining Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #0b0e11;
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: #0b0e11;
+            border-bottom: 1px solid #2a2f36;
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #f7931a, #ff9500);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-item {
+            color: #a1a7bb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            color: #ffffff;
+        }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #f7931a;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            background: #1a1d29;
+            border: 1px solid #2a2f36;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #ffffff;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .search-box::placeholder {
+            color: #a1a7bb;
+        }
+
+        .btn {
+            background: #3861fb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #2c4fdf;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #2a2f36;
+            color: #a1a7bb;
+        }
+
+        .btn-secondary:hover {
+            background: #2a2f36;
+            color: #ffffff;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 24px 0;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-bottom: 32px;
+        }
+
+        .hero-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-badge {
+            background: #f7931a;
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .hero-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .hero-change {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .change-positive {
+            color: #02c076;
+        }
+
+        .change-negative {
+            color: #f84960;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #1a1d29;
+            border: 1px solid #2a2f36;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            color: #a1a7bb;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a2f36;
+        }
+
+        .tab {
+            color: #a1a7bb;
+            text-decoration: none;
+            padding: 16px 0;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .tab:hover, .tab.active {
+            color: #ffffff;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #f7931a;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: #1a1d29;
+            border: 1px solid #2a2f36;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-btn {
+            background: transparent;
+            border: 1px solid #2a2f36;
+            color: #a1a7bb;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-btn:hover, .chart-btn.active {
+            background: #3861fb;
+            border-color: #3861fb;
+            color: #ffffff;
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        /* Mining Stats Grid */
+        .mining-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .mining-card {
+            background: #1a1d29;
+            border: 1px solid #2a2f36;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-icon {
+            width: 20px;
+            height: 20px;
+            background: #f7931a;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #02c076;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #2a2f36;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row-label {
+            color: #a1a7bb;
+            font-size: 14px;
+        }
+
+        .stat-row-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #2a2f36;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f7931a, #ff9500);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* Pool Information */
+        .pool-info {
+            background: linear-gradient(135deg, rgba(56, 97, 251, 0.1), rgba(56, 97, 251, 0.05));
+            border: 1px solid rgba(56, 97, 251, 0.3);
+        }
+
+        .earnings-info {
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(247, 147, 26, 0.05));
+            border: 1px solid rgba(247, 147, 26, 0.3);
+        }
+
+        .performance-info {
+            background: linear-gradient(135deg, rgba(2, 192, 118, 0.1), rgba(2, 192, 118, 0.05));
+            border: 1px solid rgba(2, 192, 118, 0.3);
+        }
+
+        .network-info {
+            background: linear-gradient(135deg, rgba(248, 73, 96, 0.1), rgba(248, 73, 96, 0.05));
+            border: 1px solid rgba(248, 73, 96, 0.3);
+        }
+
+        /* Real-time Updates */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(2, 192, 118, 0.1);
+            color: #02c076;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #02c076;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(2, 192, 118, 0.1);
+            border-color: #02c076;
+            color: #02c076;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .alert-danger {
+            background: rgba(248, 73, 96, 0.1);
+            border-color: #f84960;
+            color: #f84960;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                display: none;
+            }
+            
+            .search-box {
+                width: 200px;
+            }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .mining-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #2a2f36;
+            border-radius: 50%;
+            border-top-color: #f7931a;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1d29;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            border: 1px solid #2a2f36;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">₿</div>
+                    <span>Mining Analytics</span>
+                </div>
+                
+                <nav class="nav">
+                    <a href="#" class="nav-item active">Dashboard</a>
+                    <a href="#" class="nav-item">Mining</a>
+                    <a href="#" class="nav-item">Pools</a>
+                    <a href="#" class="nav-item">Analytics</a>
+                    <a href="#" class="nav-item">Settings</a>
+                </nav>
+                
+                <div class="header-actions">
+                    <input type="text" class="search-box" placeholder="Search mining pools, wallets...">
+                    <button class="btn btn-secondary">Portfolio</button>
+                    <button class="btn">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-header">
+                    <h1 class="hero-title">
+                        Bitcoin Mining #1
+                        <span class="hero-badge">LIVE</span>
+                    </h1>
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        <span>Real-time</span>
+                    </div>
+                </div>
+                
+                <div class="hero-price" id="currentPrice">$116,803.12</div>
+                <div class="hero-change">
+                    <span class="change-negative">-1.06% (24h)</span>
+                    <span style="color: #a1a7bb;">|</span>
+                    <span style="color: #a1a7bb;">Last updated: <span id="lastUpdate">Just now</span></span>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Hashrate Performance</div>
+                        <div class="stat-value" id="currentHashrate">2.4 MH/s</div>
+                        <div class="stat-change change-positive">+0.2% (1h)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">24h Earnings</div>
+                        <div class="stat-value" id="dailyEarnings">0.00001234 BTC</div>
+                        <div class="stat-change change-positive">+0.8% (1h)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pool Share</div>
+                        <div class="stat-value" id="poolShare">0.0000001%</div>
+                        <div class="stat-change change-positive">+0.1% (1h)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Efficiency</div>
+                        <div class="stat-value" id="efficiency">94.2%</div>
+                        <div class="stat-change change-positive">+2.1% (1h)</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <a href="#" class="tab active">Chart</a>
+                <a href="#" class="tab">Performance</a>
+                <a href="#" class="tab">Pools</a>
+                <a href="#" class="tab">Earnings</a>
+                <a href="#" class="tab">Network</a>
+                <a href="#" class="tab">Analytics</a>
+            </div>
+
+            <!-- Chart Section -->
+            <section class="chart-section">
+                <div class="chart-header">
+                    <h2 class="chart-title">Hashrate Performance (24h)</h2>
+                    <div class="chart-controls">
+                        <button class="chart-btn active">1D</button>
+                        <button class="chart-btn">7D</button>
+                        <button class="chart-btn">1M</button>
+                        <button class="chart-btn">1Y</button>
+                        <button class="chart-btn">All</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="hashrateChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Mining Statistics -->
+            <div class="mining-stats">
+                <!-- Pool Information -->
+                <div class="mining-card pool-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">🏊</div>
+                            Pool Connection
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Connected</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-row-label">Pool:</span>
+                        <span class="stat-row-value">Poolin</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Wallet Address:</span>
+                        <span class="stat-row-value" style="font-size: 12px;">bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Connection Latency:</span>
+                        <span class="stat-row-value">47ms</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Uptime:</span>
+                        <span class="stat-row-value" id="miningUptime">4h 23m</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Pool Fee:</span>
+                        <span class="stat-row-value">2.5%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Payout Threshold:</span>
+                        <span class="stat-row-value">0.001 BTC</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="payoutProgress" style="width: 1.2%"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <button class="btn" onclick="window.open('https://www.poolin.com/my/account/mining', '_blank')">View Pool Dashboard</button>
+                    </div>
+                </div>
+
+                <!-- Earnings Information -->
+                <div class="mining-card earnings-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">💰</div>
+                            Earnings Breakdown
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Accumulating</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-row-label">Current Balance:</span>
+                        <span class="stat-row-value" id="currentBalance">0.00001234 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Hourly Earnings:</span>
+                        <span class="stat-row-value" id="hourlyEarnings">0.00000051 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Daily Earnings:</span>
+                        <span class="stat-row-value" id="dailyEarningsDetail">0.00001234 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Weekly Projection:</span>
+                        <span class="stat-row-value" id="weeklyEarnings">0.00008638 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Monthly Projection:</span>
+                        <span class="stat-row-value" id="monthlyEarnings">0.00037020 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">USD Value (24h):</span>
+                        <span class="stat-row-value" id="usdValue">$1.44</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 1.2%"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <small style="color: #a1a7bb;">Progress to payout: 1.2% (0.00001234 / 0.001 BTC)</small>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="mining-card performance-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">⚡</div>
+                            Performance Metrics
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Optimal</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-row-label">CPU Usage:</span>
+                        <span class="stat-row-value" id="cpuUsage">87%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Threads Active:</span>
+                        <span class="stat-row-value">7 / 8</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Shares Accepted:</span>
+                        <span class="stat-row-value" id="acceptedShares">1,247</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Shares Rejected:</span>
+                        <span class="stat-row-value" id="rejectedShares">23</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Acceptance Rate:</span>
+                        <span class="stat-row-value">98.2%</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Power Consumption:</span>
+                        <span class="stat-row-value">~65W</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 87%"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <small style="color: #a1a7bb;">CPU Efficiency: 87% (Optimal)</small>
+                    </div>
+                </div>
+
+                <!-- Network Information -->
+                <div class="mining-card network-info">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <div class="card-icon">🌐</div>
+                            Network Status
+                        </h3>
+                        <div class="status-indicator">
+                            <div class="status-dot"></div>
+                            <span>Healthy</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-row-label">Network Hashrate:</span>
+                        <span class="stat-row-value">691.02 EH/s</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Difficulty:</span>
+                        <span class="stat-row-value">103.92T</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Block Height:</span>
+                        <span class="stat-row-value">836,421</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Block Reward:</span>
+                        <span class="stat-row-value">3.125 BTC</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Next Adjustment:</span>
+                        <span class="stat-row-value">+2.1% (Est.)</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-row-label">Blocks/Hour:</span>
+                        <span class="stat-row-value">6.0</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 45%"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px;">
+                        <small style="color: #a1a7bb;">Next difficulty adjustment in 1,579 blocks</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Charts -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Earnings Trend (24h)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="earningsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Share Acceptance Rate</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="sharesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div id="alerts"></div>
+
+            <!-- Footer Stats -->
+            <div style="background: #1a1d29; border: 1px solid #2a2f36; border-radius: 12px; padding: 24px; text-align: center;">
+                <div style="color: #a1a7bb; font-size: 14px; margin-bottom: 8px;">Mining Analytics Dashboard</div>
+                <div style="color: #ffffff; font-size: 16px; font-weight: 600;">Real-time monitoring • Professional grade • Enterprise ready</div>
+                <div style="color: #a1a7bb; font-size: 12px; margin-top: 8px;">Last updated: <span id="footerUpdate">Just now</span> • Auto-refresh: 5s</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Chart.js configurations with CoinMarketCap style
+        Chart.defaults.color = '#a1a7bb';
+        Chart.defaults.borderColor = '#2a2f36';
+        Chart.defaults.backgroundColor = 'rgba(247, 147, 26, 0.1)';
+
+        // Hashrate Chart
+        const hashrateCtx = document.getElementById('hashrateChart').getContext('2d');
+        const hashrateChart = new Chart(hashrateCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Hashrate (MH/s)',
+                    data: [],
+                    borderColor: '#f7931a',
+                    backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#2a2f36', drawBorder: false },
+                        ticks: { color: '#a1a7bb', maxTicksLimit: 8 }
+                    },
+                    y: {
+                        grid: { color: '#2a2f36', drawBorder: false },
+                        ticks: { color: '#a1a7bb' }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        // Earnings Chart
+        const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+        const earningsChart = new Chart(earningsCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Earnings (BTC)',
+                    data: [],
+                    borderColor: '#02c076',
+                    backgroundColor: 'rgba(2, 192, 118, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#2a2f36', drawBorder: false },
+                        ticks: { color: '#a1a7bb', maxTicksLimit: 8 }
+                    },
+                    y: {
+                        grid: { color: '#2a2f36', drawBorder: false },
+                        ticks: { 
+                            color: '#a1a7bb',
+                            callback: function(value) {
+                                return value.toFixed(8) + ' BTC';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Shares Chart
+        const sharesCtx = document.getElementById('sharesChart').getContext('2d');
+        const sharesChart = new Chart(sharesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Accepted', 'Rejected'],
+                datasets: [{
+                    data: [98.2, 1.8],
+                    backgroundColor: ['#02c076', '#f84960'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#a1a7bb',
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+
+        // Real-time data simulation
+        let miningData = {
+            hashrate: 2.4,
+            earnings: 0.00001234,
+            acceptedShares: 1247,
+            rejectedShares: 23,
+            uptime: 15800, // seconds
+            btcPrice: 116803.12
+        };
+
+        function updateMiningData() {
+            // Simulate realistic variations
+            miningData.hashrate = 2.4 + (Math.random() - 0.5) * 0.4;
+            miningData.earnings += (miningData.hashrate / 100000000) * 0.000001;
+            miningData.acceptedShares += Math.floor(Math.random() * 3);
+            miningData.rejectedShares += Math.floor(Math.random() * 0.5);
+            miningData.uptime += 5;
+            miningData.btcPrice = 116803.12 + (Math.random() - 0.5) * 1000;
+
+            updateUI();
+            updateCharts();
+            checkAlerts();
+        }
+
+        function updateUI() {
+            // Update main stats
+            document.getElementById('currentHashrate').textContent = `${miningData.hashrate.toFixed(1)} MH/s`;
+            document.getElementById('dailyEarnings').textContent = `${miningData.earnings.toFixed(8)} BTC`;
+            document.getElementById('currentPrice').textContent = `$${miningData.btcPrice.toLocaleString()}`;
+            
+            // Update detailed stats
+            document.getElementById('currentBalance').textContent = `${miningData.earnings.toFixed(8)} BTC`;
+            document.getElementById('hourlyEarnings').textContent = `${(miningData.earnings / 24).toFixed(8)} BTC`;
+            document.getElementById('dailyEarningsDetail').textContent = `${miningData.earnings.toFixed(8)} BTC`;
+            document.getElementById('weeklyEarnings').textContent = `${(miningData.earnings * 7).toFixed(8)} BTC`;
+            document.getElementById('monthlyEarnings').textContent = `${(miningData.earnings * 30).toFixed(8)} BTC`;
+            document.getElementById('usdValue').textContent = `$${(miningData.earnings * miningData.btcPrice).toFixed(2)}`;
+            
+            // Update shares
+            document.getElementById('acceptedShares').textContent = miningData.acceptedShares.toLocaleString();
+            document.getElementById('rejectedShares').textContent = miningData.rejectedShares.toLocaleString();
+            
+            // Update uptime
+            const hours = Math.floor(miningData.uptime / 3600);
+            const minutes = Math.floor((miningData.uptime % 3600) / 60);
+            document.getElementById('miningUptime').textContent = `${hours}h ${minutes}m`;
+            
+            // Update timestamps
+            const now = new Date().toLocaleTimeString();
+            document.getElementById('lastUpdate').textContent = 'Just now';
+            document.getElementById('footerUpdate').textContent = now;
+            
+            // Update payout progress
+            const payoutProgress = (miningData.earnings / 0.001) * 100;
+            document.getElementById('payoutProgress').style.width = `${Math.min(payoutProgress, 100)}%`;
+        }
+
+        function updateCharts() {
+            const now = new Date().toLocaleTimeString();
+            
+            // Update hashrate chart
+            hashrateChart.data.labels.push(now);
+            hashrateChart.data.datasets[0].data.push(miningData.hashrate);
+            
+            if (hashrateChart.data.labels.length > 24) {
+                hashrateChart.data.labels.shift();
+                hashrateChart.data.datasets[0].data.shift();
+            }
+            
+            hashrateChart.update('none');
+
+            // Update earnings chart
+            earningsChart.data.labels.push(now);
+            earningsChart.data.datasets[0].data.push(miningData.earnings);
+            
+            if (earningsChart.data.labels.length > 24) {
+                earningsChart.data.labels.shift();
+                earningsChart.data.datasets[0].data.shift();
+            }
+            
+            earningsChart.update('none');
+
+            // Update shares chart
+            const totalShares = miningData.acceptedShares + miningData.rejectedShares;
+            const acceptanceRate = (miningData.acceptedShares / totalShares) * 100;
+            sharesChart.data.datasets[0].data = [acceptanceRate, 100 - acceptanceRate];
+            sharesChart.update('none');
+        }
+
+        function checkAlerts() {
+            const alertsContainer = document.getElementById('alerts');
+            
+            // Clear existing alerts
+            alertsContainer.innerHTML = '';
+            
+            // Check for high rejection rate
+            const totalShares = miningData.acceptedShares + miningData.rejectedShares;
+            if (totalShares > 10) {
+                const rejectionRate = (miningData.rejectedShares / totalShares) * 100;
+                if (rejectionRate > 5) {
+                    showAlert('warning', `High rejection rate detected: ${rejectionRate.toFixed(1)}%. Check your connection.`);
+                }
+            }
+
+            // Check for low hashrate
+            if (miningData.hashrate < 1.5) {
+                showAlert('danger', 'Low hashrate detected! Your mining performance is below optimal.');
+            }
+
+            // Check for good performance
+            if (miningData.hashrate > 2.5) {
+                showAlert('success', `Excellent performance! Hashrate: ${miningData.hashrate.toFixed(1)} MH/s`);
+            }
+
+            // Check payout progress
+            const payoutProgress = (miningData.earnings / 0.001) * 100;
+            if (payoutProgress > 50) {
+                showAlert('success', `Great progress! ${payoutProgress.toFixed(1)}% towards payout threshold.`);
+            }
+        }
+
+        function showAlert(type, message) {
+            const alertsContainer = document.getElementById('alerts');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.parentNode.removeChild(alert);
+                }
+            }, 5000);
+            
+            alertsContainer.appendChild(alert);
+        }
+
+        // Initialize charts with some data
+        function initializeCharts() {
+            const now = new Date();
+            const labels = [];
+            const hashrateData = [];
+            const earningsData = [];
+            
+            for (let i = 23; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 5 * 60 * 1000);
+                labels.push(time.toLocaleTimeString());
+                hashrateData.push(2.4 + (Math.random() - 0.5) * 0.4);
+                earningsData.push(0.00001234 * (i / 24) + Math.random() * 0.000001);
+            }
+            
+            hashrateChart.data.labels = labels;
+            hashrateChart.data.datasets[0].data = hashrateData;
+            hashrateChart.update('none');
+            
+            earningsChart.data.labels = labels;
+            earningsChart.data.datasets[0].data = earningsData;
+            earningsChart.update('none');
+        }
+
+        // Start real-time updates
+        initializeCharts();
+        setInterval(updateMiningData, 5000); // Update every 5 seconds
+        
+        // Initial update
+        updateMiningData();
+        
+        // Chart control buttons
+        document.querySelectorAll('.chart-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Here you would load different time periods
+            });
+        });
+
+        // Tab navigation
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // Here you would load different sections
+            });
+        });
+    </script>
+</body>
+</html>

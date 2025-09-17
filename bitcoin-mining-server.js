@@ -102,6 +102,11 @@ class BitcoinMiningServer extends EventEmitter {
             res.sendFile(path.join(__dirname, 'advanced-stats-dashboard.html'));
         });
 
+        // Professional mining dashboard (CoinMarketCap style)
+        this.app.get('/professional', (req, res) => {
+            res.sendFile(path.join(__dirname, 'professional-mining-dashboard.html'));
+        });
+
         // API endpoints
         this.app.get('/api/status', (req, res) => {
             res.json({
