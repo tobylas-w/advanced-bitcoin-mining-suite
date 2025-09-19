@@ -1,0 +1,40 @@
+[
+  {
+    "timestamp": 1758219056608,
+    "decision": {
+      "cpuThreads": 16,
+      "gpuThreads": 8,
+      "intensity": 100,
+      "powerConsumption": 200,
+      "estimatedHashrate": 0.6315789473684209,
+      "profitability": {
+        "grossProfit": 0.00006315789473684209,
+        "electricityCost": 0.4800000000000001,
+        "netProfit": -0.4799368421052633,
+        "roi": -759900.0000000003,
+        "isProfitable": false
+      },
+      "efficiency": -0.0023996842105263165
+    },
+    "profile": "max"
+  },
+  {
+    "timestamp": 1758239857958,
+    "decision": {
+      "cpuThreads": 16,
+      "gpuThreads": 8,
+      "intensity": 100,
+      "powerConsumption": 200,
+      "estimatedHashrate": 4.050000000000001,
+      "profitability": {
+        "grossProfit": 0.0004050000000000001,
+        "electricityCost": 0.4800000000000001,
+        "netProfit": -0.4795950000000001,
+        "roi": -118418.51851851853,
+        "isProfitable": false
+      },
+      "efficiency": -0.0023979750000000005
+    },
+    "profile": "max"
+  }
+]

